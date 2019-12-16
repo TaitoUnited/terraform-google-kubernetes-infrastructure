@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      release: {{ .Release.Name }}
+      tier: proxy
+  policyTypes:
+  - Ingress
+  - Egress
+  # Allow connections to all ip addresses
+  # - Uses public ip for communicating with Google APIs
+  # - Uses private ip for connecting the database
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
