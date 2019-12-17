@@ -17,10 +17,16 @@
 /* Provider */
 
 provider "google" {
+  project = var.project_id
+  region  = var.region
+  zone    = var.zone
   version = "~> 2.18.0"
 }
 
 provider "google-beta" {
+  project = var.project_id
+  region  = var.region
+  zone    = var.zone
   version = "~> 2.18.0"
 }
 
