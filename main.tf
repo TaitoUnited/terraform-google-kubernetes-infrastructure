@@ -25,6 +25,8 @@ provider "google-beta" {
 }
 
 provider "helm" {
+  install_tiller = false
+  max_history    = 20
 }
 
 data "google_project" "zone" {
