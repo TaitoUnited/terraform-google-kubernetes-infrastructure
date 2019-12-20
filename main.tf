@@ -40,6 +40,9 @@ data "google_project" "zone" {
 }
 
 locals {
+  nginx_ingress_version      = "1.26.2"
+  cert_manager_version       = "0.11.0"
+
   network_name           = "${var.name}-network"
   subnet_name            = "${var.name}-subnet"
   master_auth_subnetwork = "${var.name}-master-subnet"

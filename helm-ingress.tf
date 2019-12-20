@@ -23,7 +23,7 @@ resource "helm_release" "nginx_ingress" {
   namespace  = "nginx-ingress"
   repository = "https://kubernetes-charts.storage.googleapis.com/"
   chart      = "nginx-ingress"
-  version    = "1.26.2"
+  version    = local.nginx_ingress_version
   wait       = false
 
   set {
@@ -83,14 +83,15 @@ resource "helm_release" "cert_manager_crd" {
   namespace  = "cert-manager-crd"
   repository = "https://taitounited.github.io/taito-charts/"
   chart      = "cert-manager-crd"
-  version    = "0.11.0"
+  version    = local.cert_manager_version
 }
 
 resource "null_resource" "cert_manager_crd_wait" {
   depends_on = [helm_release.cert_manager_crd]
 
   triggers = {
-    helm_enabled = var.helm_enabled
+    helm_enabled         = var.helm_enabled
+    cert_manager_version = local.cert_manager_version
   }
 
   provisioner "local-exec" {
@@ -107,7 +108,7 @@ resource "helm_release" "cert_manager" {
   namespace  = "cert-manager"
   repository = "https://charts.jetstack.io/"
   chart      = "cert-manager"
-  version    = "0.11.0"
+  version    = local.cert_manager_version
 
   set {
     name     = "global.rbac.create"
