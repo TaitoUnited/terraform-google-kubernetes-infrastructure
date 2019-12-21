@@ -33,6 +33,9 @@ provider "google-beta" {
 provider "helm" {
   install_tiller = false
   max_history    = 20
+  kubernetes {
+    config_context = var.kubernetes_context != "" ? var.kubernetes_context : var.name
+  }
 }
 
 data "google_project" "zone" {
