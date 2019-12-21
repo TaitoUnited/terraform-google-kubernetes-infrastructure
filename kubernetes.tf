@@ -77,6 +77,7 @@ module "kubernetes" {
     "enabled" = true
   }] : []
 
+  kubernetes_version        = var.kubernetes_release_channel == "STABLE" ? "1.13.11-gke.14" : "latest"
   release_channel           = var.kubernetes_release_channel
   maintenance_start_time    = "02:00"
 
