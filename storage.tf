@@ -89,6 +89,11 @@ resource "google_storage_bucket" "assets" {
     purpose = "assets"
   }
 
+  cors {
+    origin          = ["*"]
+    method          = ["GET", "HEAD"]
+  }
+
   versioning {
     enabled = true
   }
