@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ module "kubernetes" {
       ? data.external.service_wait.result.project_id
       : var.project_id
   )
-  name                           = var.kubernetes_name
+  name                           = local.kubernetes.name
   region                         = var.region
-  regional                       = length(var.kubernetes_zones) == 0
-  zones                          = var.kubernetes_zones
+  regional                       = length(local.kubernetes.zones) == 0
+  zones                          = local.kubernetes.zones
   network                        = (
     var.first_run
       ? data.external.network_wait.result.network_name
@@ -39,7 +39,7 @@ module "kubernetes" {
   master_ipv4_cidr_block         = local.kubernetes_master_cidr
 
   master_authorized_networks = [
-    for cidr in var.kubernetes_authorized_networks:
+    for cidr in local.kubernetes.masterAuthorizedNetworks:
     {
       cidr_block   = cidr
       display_name = cidr
@@ -47,9 +47,9 @@ module "kubernetes" {
   ]
 
   database_encryption = [{
-    state    = var.kubernetes_db_encryption ? "ENCRYPTED" : "DECRYPTED"
+    state    = local.kubernetes.dbEncryptionEnabled ? "ENCRYPTED" : "DECRYPTED"
     key_name = (
-      var.kubernetes_db_encryption
+      local.kubernetes.dbEncryptionEnabled
         ? google_kms_crypto_key.kubernetes_key[0].self_link
         : ""
     )
@@ -61,24 +61,25 @@ module "kubernetes" {
   registry_project_id             = var.project_id
 
   enable_private_endpoint         = false
-  enable_private_nodes            = var.kubernetes_private_nodes
-  network_policy                  = var.kubernetes_network_policy
+  enable_private_nodes            = local.kubernetes.privateNodesEnabled
+  network_policy                  = local.kubernetes.networkPolicyEnabled
   # network_policy_provider         = "CALICO"
-  enable_shielded_nodes           = var.kubernetes_shielded_nodes
+  enable_shielded_nodes           = local.kubernetes.shieldedNodesEnabled
   enable_vertical_pod_autoscaling = true
   horizontal_pod_autoscaling      = true
   http_load_balancing             = true
   logging_service                 = "logging.googleapis.com/kubernetes"
   monitoring_service              = "monitoring.googleapis.com/kubernetes"
-  istio                           = var.kubernetes_istio
-  cloudrun                        = var.kubernetes_cloudrun
+  istio                           = local.kubernetes.istioEnabled
+  cloudrun                        = local.kubernetes.cloudrunEnabled
 
-  pod_security_policy_config = var.kubernetes_pod_security_policy ? [{
+  pod_security_policy_config = local.kubernetes.podSecurityPolicyEnabled ? [{
     "enabled" = true
   }] : []
 
-  kubernetes_version        = var.kubernetes_release_channel == "STABLE" ? "1.13.11-gke.14" : "latest"
-  release_channel           = var.kubernetes_release_channel
+  kubernetes_version        = null
+    # was: local.kubernetes.releaseChannel == "STABLE" ? "1.13.11-gke.14" : "latest"
+  release_channel           = local.kubernetes.releaseChannel
   maintenance_start_time    = "02:00"
 
   # TODO: resource_usage_export_dataset_id
@@ -90,26 +91,29 @@ module "kubernetes" {
   remove_default_node_pool  = true
   initial_node_count        = 1
 
-  node_pools = [
-    {
-      name                  = "${var.kubernetes_name}-default"
-      # service_account     = var.compute_engine_service_account
-      initial_node_count    = var.kubernetes_min_node_count
-      min_count             = var.kubernetes_min_node_count
-      max_count             = var.kubernetes_max_node_count
-      autoscaling           = var.kubernetes_min_node_count < var.kubernetes_max_node_count
-      auto_repair           = true
-      auto_upgrade          = true
-      disk_size_gb          = var.kubernetes_disk_size_gb
-      # TODO: image_type            = "COS_CONTAINERD"
-      machine_type          = var.kubernetes_machine_type
+  node_pools = (
+    for nodePool in local.kubernetes.nodePools
+    [
+      {
+        name                  = "${local.kubernetes.name}-default"
+        # service_account     = var.compute_engine_service_account
+        initial_node_count    = nodePool.minNodeCount
+        min_count             = nodePool.minNodeCount
+        max_count             = nodePool.maxNodeCount
+        autoscaling           = nodePool.minNodeCount < nodePool.maxNodeCount
+        auto_repair           = true
+        auto_upgrade          = true
+        disk_size_gb          = nodePool.diskSizeGb
+        # TODO: image_type    = "COS_CONTAINERD"
+        machine_type          = nodePool.machineType
 
-      # TODO: these are ignored
-      # node_metadata               = "GKE_METADATA_SERVER"
-      # enable_secure_boot          = var.kubernetes_shielded_nodes
-      # enable_integrity_monitoring = var.kubernetes_shielded_nodes
-    }
-  ]
+        # TODO: these are ignored
+        # node_metadata               = "GKE_METADATA_SERVER"
+        # enable_secure_boot          = local.kubernetes.shieldedNodesEnabled
+        # enable_integrity_monitoring = local.kubernetes.shieldedNodesEnabled
+      }
+    ]
+  )
 
   # TODO: prevent destroy -> https://github.com/hashicorp/terraform/issues/18367
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,14 @@
 resource "google_logging_project_sink" "logs" {
   depends_on = [google_project_service.compute]
 
-  count = length(var.logging_sinks)
-  name  = var.logging_sinks[count.index]
+  count = length(local.loggingSinks)
+  name  = local.loggingSinks[count.index].name
 
   # Can export to pubsub, cloud storage, or bigtable
-  destination = "bigquery.googleapis.com/projects/${var.logging_sinks[count.index]}/datasets/logs"
+  destination = "bigquery.googleapis.com/projects/${local.loggingSinks[count.index].name}/datasets/logs"
 
   # Log all WARN or higher severity messages relating to instances
-  filter = "resource.type=container AND resource.jsonPayload.labels.company=${var.logging_companies[count.index]}"
+  filter = "resource.type=container AND resource.jsonPayload.labels.company=${local.loggingSinks[count.index].company}"
 
   # Use a unique writer (creates a unique service account used for writing)
   unique_writer_identity = true

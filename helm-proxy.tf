@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 resource "helm_release" "postgres_proxy" {
   depends_on = [module.kubernetes, helm_release.letsencrypt_issuer]
 
-  count      = var.helm_enabled ? length(var.postgres_instances) : 0
-  name       = var.postgres_instances[count.index]
+  count      = var.helm_enabled ? length(local.postgresClusters) : 0
+  name       = local.postgresClusters[count.index].name
   namespace  = "db-proxy"
   chart      = "${path.module}/sql-proxy"
 
   set {
     name     = "dbInstance"
-    value    = "${var.name}:${var.region}:${var.postgres_instances[count.index]}"
+    value    = "${var.name}:${var.region}:${local.postgresClusters[count.index].name}"
   }
 
   set {
@@ -34,21 +34,21 @@ resource "helm_release" "postgres_proxy" {
 
   set {
     name     = "podSecurityPolicyEnabled"
-    value    = var.kubernetes_pod_security_policy
+    value    = local.kubernetes.podSecurityPolicyEnabled
   }
 }
 
 resource "helm_release" "mysql_proxy" {
   depends_on = [module.kubernetes, helm_release.postgres_proxy]
 
-  count      = var.helm_enabled ? length(var.mysql_instances) : 0
-  name       = var.mysql_instances[count.index]
+  count      = var.helm_enabled ? length(local.mysqlClusters) : 0
+  name       = local.mysqlClusters[count.index].name
   namespace  = "db-proxy"
   chart      = "${path.module}/sql-proxy"
 
   set {
     name     = "dbInstance"
-    value    = "${var.name}:${var.region}:${var.mysql_instances[count.index]}"
+    value    = "${var.name}:${var.region}:${local.mysqlClusters[count.index].name}"
   }
 
   set {
@@ -58,6 +58,6 @@ resource "helm_release" "mysql_proxy" {
 
   set {
     name     = "podSecurityPolicyEnabled"
-    value    = var.kubernetes_pod_security_policy
+    value    = local.kubernetes.podSecurityPolicyEnabled
   }
 }

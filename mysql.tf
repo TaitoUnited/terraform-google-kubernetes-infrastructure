@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,23 +19,23 @@ resource "google_sql_database_instance" "mysql" {
   # depends_on = [google_service_networking_connection.private_vpc_connection]
   depends_on = [google_project_service.compute]
 
-  count = length(var.mysql_instances)
-  name  = var.mysql_instances[count.index]
+  count = length(local.mysqlClusters)
+  name  = local.mysqlClusters[count.index].name
 
-  database_version = var.mysql_versions[count.index]
+  database_version = local.mysqlClusters[count.index].version
   region           = var.region
 
   # TODO: How to enable high availability for mysql?
 
   settings {
-    tier              = var.mysql_tiers[count.index]
+    tier              = local.mysqlClusters[count.index].tier
 
     location_preference {
       zone = var.zone
     }
 
     ip_configuration {
-      ipv4_enabled    = var.mysql_public_ip
+      ipv4_enabled    = local.mysqlClusters[count.index].publicIpEnabled
       private_network = (
         var.first_run
           ? data.external.network_wait.result.network_self_link
@@ -44,7 +44,7 @@ resource "google_sql_database_instance" "mysql" {
       require_ssl     = "true"
 
       dynamic "authorized_networks" {
-        for_each = var.mysql_authorized_networks
+        for_each = local.mysqlClusters[count.index].authorizedNetworks
         content {
           value = authorized_networks.value
         }
@@ -69,21 +69,21 @@ resource "google_sql_database_instance" "mysql" {
 }
 
 resource "random_string" "mysql_admin_password" {
-  count    = length(var.mysql_instances)
+  count    = length(local.mysqlClusters)
 
   length  = 32
   special = false
   upper   = true
 
   keepers = {
-    mysql_instance = var.mysql_instances[count.index]
-    mysql_admin    = var.mysql_admins[count.index]
+    mysql_instance = local.mysqlClusters[count.index].name
+    mysql_admin    = local.mysqlClusters[count.index].adminUsername
   }
 }
 
 resource "google_sql_user" "mysql_admin" {
-  count    = length(var.mysql_instances)
-  name     = var.mysql_admins[count.index]
+  count    = length(local.mysqlClusters)
+  name     = local.mysqlClusters[count.index].adminUsername
   host     = "%"
   instance = google_sql_database_instance.mysql[count.index].name
   password = random_string.mysql_admin_password[count.index].result

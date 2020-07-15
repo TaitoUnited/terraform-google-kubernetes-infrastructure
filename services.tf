@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ resource "null_resource" "service_wait" {
   triggers = {
     name                   = var.name
     enable_google_services = var.enable_google_services
-    kubernetes_name        = var.kubernetes_name
+    kubernetes_name        = local.kubernetes.name
   }
 
   provisioner "local-exec" {

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 resource "helm_release" "nginx_ingress" {
   depends_on = [module.kubernetes]
 
-  count = var.helm_enabled ? length(var.helm_nginx_ingress_classes) : 0
+  count      = var.helm_enabled ? length(local.nginxIngressControllers) : 0
 
   name       = "nginx-ingress"
   namespace  = "nginx-ingress"
@@ -28,7 +28,7 @@ resource "helm_release" "nginx_ingress" {
 
   set {
     name     = "podSecurityPolicy.enabled"
-    value    = var.kubernetes_pod_security_policy
+    value    = local.kubernetes.podSecurityPolicyEnabled
   }
 
   set {
@@ -43,12 +43,12 @@ resource "helm_release" "nginx_ingress" {
 
   set {
     name     = "controller.ingressClass"
-    value    = var.helm_nginx_ingress_classes[count.index]
+    value    = local.nginxIngressControllers[count.index].class
   }
 
   set {
     name     = "controller.replicaCount"
-    value    = var.helm_nginx_ingress_replica_counts[count.index]
+    value    = local.nginxIngressControllers[count.index].replicas
   }
 
   set_string {
@@ -77,7 +77,7 @@ resource "helm_release" "nginx_ingress" {
 resource "helm_release" "cert_manager_crd" {
   depends_on = [module.kubernetes, helm_release.nginx_ingress]
 
-  count = var.helm_enabled ? 1 : 0
+  count      = var.helm_enabled ? 1 : 0
 
   name       = "cert-manager-crd"
   namespace  = "cert-manager-crd"
@@ -117,7 +117,7 @@ resource "helm_release" "cert_manager" {
 
   set {
     name     = "global.podSecurityPolicy.enabled"
-    value    = var.kubernetes_pod_security_policy
+    value    = local.kubernetes.podSecurityPolicyEnabled
   }
 
   set {
@@ -133,7 +133,7 @@ resource "helm_release" "cert_manager" {
   # TODO: https://cert-manager.io/docs/installation/compatibility/
   set {
     name     = "webhook.enabled"
-    value    = var.kubernetes_private_nodes ? "false" : "true"
+    value    = local.kubernetes.privateNodesEnabled ? "false" : "true"
   }
 }
 

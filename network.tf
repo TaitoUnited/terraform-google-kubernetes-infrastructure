@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ data "external" "network_wait" {
 
 resource "google_compute_router" "nat_router" {
   depends_on = [google_project_service.compute]
-  count   = var.kubernetes_private_nodes ? 1 : 0
+  count   = local.kubernetes.privateNodesEnabled ? 1 : 0
 
   name    = "nat-router"
   region  = var.region
@@ -74,7 +74,7 @@ resource "google_compute_router" "nat_router" {
 
 resource "google_compute_router_nat" "nat" {
   depends_on = [google_project_service.compute]
-  count = var.kubernetes_private_nodes ? 1 : 0
+  count = local.kubernetes.privateNodesEnabled ? 1 : 0
 
   name                               = "nat"
   router                             = google_compute_router.nat_router[0].name
@@ -129,7 +129,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 
 resource "google_compute_address" "kubernetes_ingress" {
   depends_on  = [google_project_service.compute]
-  count       = var.kubernetes_name != "" ? 1 : 0
-  name        = "${var.kubernetes_name}-ingress"
+  count       = local.kubernetes.name != "" ? 1 : 0
+  name        = "${local.kubernetes.name}-ingress"
   description = "Kubernetes ingress public static IP address"
 }

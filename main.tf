@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ provider "helm" {
   install_tiller = false
   max_history    = 20
   kubernetes {
-    config_context = var.kubernetes_context != "" ? var.kubernetes_context : var.name
+    config_context = local.kubernetes.context != "" ? local.kubernetes.context : var.name
   }
 }
 
@@ -52,4 +52,55 @@ locals {
   pods_range_name        = "${var.name}-ip-range-pods"
   svc_range_name         = "${var.name}-ip-range-svc"
   kubernetes_master_cidr = "172.16.0.0/28"
+
+  owners = try(
+    var.variables.owners != null ? var.variables.owners : [], []
+  )
+
+  editors = try(
+    var.variables.editors != null ? var.variables.editors : [], []
+  )
+
+  viewers = try(
+    var.variables.viewers != null ? var.variables.viewers : [], []
+  )
+
+  developers = try(
+    var.variables.developers != null ? var.variables.developers : [], []
+  )
+
+  externals = try(
+    var.variables.externals != null ? var.variables.externals : [], []
+  )
+
+  kubernetes = var.variables.kubernetes
+
+  nodePools = try(
+    var.variables.kubernetes.nodePools != null
+    ? var.variables.kubernetes.nodePools
+    : [],
+    []
+  )
+
+  nginxIngressControllers = try(
+    var.variables.kubernetes.nginxIngressControllers != null
+    ? var.variables.kubernetes.nginxIngressControllers
+    : [],
+    []
+  )
+
+  postgresClusters = try(
+    var.variables.postgresClusters != null
+    ? var.variables.postgresClusters
+    : [],
+    []
+  )
+
+  mysqlClusters = try(
+    var.variables.mysqlClusters != null
+    ? var.variables.mysqlClusters
+    : [],
+    []
+  )
+
 }

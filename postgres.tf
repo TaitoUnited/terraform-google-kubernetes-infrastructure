@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Taito United
+ * Copyright 2020 Taito United
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,22 @@ resource "google_sql_database_instance" "postgres" {
   # depends_on = [google_service_networking_connection.private_vpc_connection]
   depends_on = [google_project_service.compute]
 
-  count = length(var.postgres_instances)
-  name  = var.postgres_instances[count.index]
+  count = length(local.postgresClusters)
+  name  = local.postgresClusters[count.index].name
 
-  database_version = var.postgres_versions[count.index]
+  database_version = local.postgresClusters[count.index].version
   region           = var.region
 
   settings {
-    tier              = var.postgres_tiers[count.index]
-    availability_type = var.postgres_high_availability ? "REGIONAL" : "ZONAL"
+    tier              = local.postgresClusters[count.index].tier
+    availability_type = local.postgresClusters[count.index].highAvailabilityEnabled ? "REGIONAL" : "ZONAL"
 
     location_preference {
       zone = var.zone
     }
 
     ip_configuration {
-      ipv4_enabled    = var.postgres_public_ip ? true : false
+      ipv4_enabled    = local.postgresClusters[count.index].publicIpEnabled ? true : false
       private_network = (
         var.first_run
           ? data.external.network_wait.result.network_self_link
@@ -43,7 +43,7 @@ resource "google_sql_database_instance" "postgres" {
       require_ssl     = "true"
 
       dynamic "authorized_networks" {
-        for_each = var.postgres_authorized_networks
+        for_each = local.postgresClusters[count.index].authorizedNetworks
         content {
           value = authorized_networks.value
         }
