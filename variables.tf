@@ -121,7 +121,7 @@ variable "projects_bucket" {
   description = "Name of storage bucket used for storing function packages, etc."
 }
 
-variable "assets_bucket" {
+variable "public_bucket" {
   type    = string
   default = ""
   description = "Name of storage bucket used for storing static assets."

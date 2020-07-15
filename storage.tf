@@ -76,17 +76,17 @@ resource "google_storage_bucket" "projects" {
   }
 }
 
-resource "google_storage_bucket" "assets" {
+resource "google_storage_bucket" "public" {
   depends_on = [google_project_service.compute]
 
-  count         = var.assets_bucket != "" ? 1 : 0
-  name          = var.assets_bucket
+  count         = var.public_bucket != "" ? 1 : 0
+  name          = var.public_bucket
   storage_class = "REGIONAL"
   location      = var.region
 
   labels = {
     project = var.project_id
-    purpose = "assets"
+    purpose = "public"
   }
 
   cors {
