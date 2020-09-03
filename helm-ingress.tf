@@ -71,6 +71,22 @@ resource "helm_release" "nginx_ingress" {
     value    = local.nginxIngressControllers[count.index].metricsEnabled
   }
 
+  set_string {
+    name     = "controller.config.log-format-escape-json"
+    value    = "true"
+  }
+
+  set_string {
+    name     = "controller.config.log-format-upstream"
+    value    = '{"timestamp": "$time_iso8601", "requestId": "$req_id", "proxyUpstreamName":
+    "$proxy_upstream_name", "proxyAlternativeUpstreamName": "$proxy_alternative_upstream_name", "upstreamStatus":
+    "$upstream_status", "upstreamAddr": "$upstream_addr", "httpRequest":{ "requestMethod":
+    "$request_method", "requestUrl": "$host$request_uri", "status": $status, "requestSize":
+    "$request_length", "responseSize": "$upstream_response_length", "userAgent": "$http_user_agent",
+    "remoteIp": "$remote_addr", "referer": "$http_referer", "responseTimeS": "$upstream_response_time",
+    "protocol":"$server_protocol"}}'
+  }
+
   dynamic "set_string" {
     for_each = local.nginxIngressControllers[count.index].configMap
     content {
