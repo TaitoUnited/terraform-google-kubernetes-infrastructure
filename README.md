@@ -8,21 +8,22 @@ Example YAML for variables:
 
 ```
 #--------------------------------------------------------------------
-# Users
+# Permissions
 #--------------------------------------------------------------------
 
-owners:
-  - user:john.owner@mydomain.com
-viewers:
-  - user:john.viewer@mydomain.com
-statusviewers:
-  - user:john.statusviewer@mydomain.com
-dataviewers:
-  - user:jane.external@anotherdomain.com
-developers:
-  - user:john.developer@mydomain.com
-externals:
-  - user:jane.external@anotherdomain.com
+permissions:
+  owners:
+    - user:john.owner@mydomain.com
+  viewers:
+    - user:john.viewer@mydomain.com
+  statusviewers:
+    - user:john.statusviewer@mydomain.com
+  dataviewers:
+    - user:jane.external@anotherdomain.com
+  developers:
+    - user:john.developer@mydomain.com
+  externals:
+    - user:jane.external@anotherdomain.com
 
 #--------------------------------------------------------------------
 # DNS

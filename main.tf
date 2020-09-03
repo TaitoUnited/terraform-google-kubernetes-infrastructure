@@ -56,27 +56,27 @@ locals {
   # Users
 
   owners = try(
-    var.variables.owners != null ? var.variables.owners : [], []
+    var.variables.permissions.owners != null ? var.variables.permissions.owners : [], []
   )
 
   viewers = try(
-    var.variables.viewers != null ? var.variables.viewers : [], []
+    var.variables.permissions.viewers != null ? var.variables.permissions.viewers : [], []
   )
 
   developers = try(
-    var.variables.developers != null ? var.variables.developers : [], []
+    var.variables.permissions.developers != null ? var.variables.permissions.developers : [], []
   )
 
   statusviewers = try(
-    var.variables.statusviewers != null ? var.variables.statusviewers : [], []
+    var.variables.permissions.statusviewers != null ? var.variables.permissions.statusviewers : [], []
   )
 
   externals = try(
-    var.variables.externals != null ? var.variables.externals : [], []
+    var.variables.permissions.externals != null ? var.variables.permissions.externals : [], []
   )
 
   dataviewers = try(
-    var.variables.dataviewers != null ? var.variables.dataviewers : [], []
+    var.variables.permissions.dataviewers != null ? var.variables.permissions.dataviewers : [], []
   )
 
   # DNS
