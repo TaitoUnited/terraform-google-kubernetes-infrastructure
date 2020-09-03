@@ -42,31 +42,10 @@ resource "google_project_iam_binding" "owner" {
   members    = local.owners
 }
 
-resource "google_project_iam_binding" "editor" {
-  depends_on = [google_project_service.compute, google_project_service.containerregistry]
-  role       = "roles/editor"
-  members    = concat(local.editors, [
-    # keep the existing cloudservices service account editor permission
-    "serviceAccount:${data.google_project.zone.number}@cloudservices.gserviceaccount.com",
-    # keep the existing containerregistry service account editor permission
-    "serviceAccount:service-${data.google_project.zone.number}@containerregistry.iam.gserviceaccount.com"
-  ])
-}
-
 resource "google_project_iam_binding" "viewer" {
   depends_on = [google_project_service.compute]
   role       = "roles/viewer"
-  members = concat(
-    local.viewers,
-  )
-}
-
-resource "google_project_iam_binding" "cloudsql_client" {
-  depends_on = [google_project_service.compute, google_service_account.database_proxy]
-  role       = "roles/cloudsql.client"
-  members = concat(
-    [ "serviceAccount:${google_service_account.database_proxy.email}" ],
-  )
+  members    = local.viewers
 }
 
 resource "google_project_iam_binding" "container_developer" {
@@ -74,32 +53,48 @@ resource "google_project_iam_binding" "container_developer" {
   role       = "roles/container.developer"
   members = concat(
     local.developers,
-    local.externals,
-    var.cicd_deploy_enabled ? [
+
+    var.cicd_cloud_deploy_enabled ? [
+      # TODO: Give cloudbuild only such permissions it really requires.
+      # -> Optionally prevent also (Cluster)Role/(Cluster)RoleBinding modifications.
       "serviceAccount:${data.google_project.zone.number}@cloudbuild.gserviceaccount.com",
-      "serviceAccount:${google_service_account.cicd_tester.email}"
+    ] : [],
+
+    var.cicd_testing_enabled ? [
+      # TODO: limit tester access (connects to db proxy container and reads project specific db secrets)
+      "serviceAccount:${google_service_account.cicd_tester[0].email}"
     ] : [],
   )
 }
 
-/* TODO: Perhaps roles/container.admin suffices?
-resource "google_project_iam_binding" "container_cluster_admin" {
+resource "google_project_iam_binding" "container_cluster_viewer" {
   depends_on = [null_resource.service_wait]
-  role       = "roles/container.clusterAdmin"
-  members = [
-    # TODO: Avoid giving clusterAdmin role for cloudbuild
-    "serviceAccount:${data.google_project.zone.number}@cloudbuild.gserviceaccount.com"
-  ]
+  role       = "roles/container.clusterViewer"
+  members = concat(
+    local.viewers,
+    local.statusviewers,
+    local.externals,
+  )
 }
-*/
 
-resource "google_project_iam_binding" "container_admin" {
-  depends_on = [null_resource.service_wait]
-  role       = "roles/container.admin"
-  members = [
-    # TODO: Avoid giving admin role for cloudbuild
-    "serviceAccount:${data.google_project.zone.number}@cloudbuild.gserviceaccount.com"
-  ]
+resource "google_project_iam_binding" "cloudsql_client" {
+  depends_on = [google_project_service.compute, google_service_account.database_proxy]
+  role       = "roles/cloudsql.client"
+  members = concat(
+    local.viewers,
+    local.statusviewers,
+    local.dataviewers,
+    local.developers,
+    local.externals,
+
+    var.var.database_proxy_enabled ? [
+      "serviceAccount:${google_service_account.database_proxy.email}"
+    ] : [],
+
+    var.cicd_testing_enabled ? [
+      "serviceAccount:${google_service_account.cicd_tester[0].email}"
+    ] : [],
+  )
 }
 
 resource "google_project_iam_binding" "serviceusage_consumer" {
@@ -112,6 +107,12 @@ resource "google_project_iam_binding" "cloudbuild_builds_editor" {
   depends_on = [google_project_service.compute]
   role       = "roles/cloudbuild.builds.editor"
   members    = local.developers
+}
+
+resource "google_project_iam_binding" "cloudbuild_builds_viewer" {
+  depends_on = [google_project_service.compute]
+  role       = "roles/cloudbuild.builds.viewer"
+  members    = local.statusviewers
 }
 
 resource "google_project_iam_binding" "errorreporting_user" {
@@ -130,4 +131,10 @@ resource "google_project_iam_binding" "monitoring_editor" {
   depends_on = [google_project_service.compute]
   role       = "roles/monitoring.editor"
   members    = local.developers
+}
+
+resource "google_project_iam_binding" "monitoring_viewer" {
+  depends_on = [google_project_service.compute]
+  role       = "roles/monitoring.viewer"
+  members    = local.statusviewers
 }

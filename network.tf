@@ -16,7 +16,7 @@
 
 module "network" {
   source       = "terraform-google-modules/network/google"
-  version      = "~> 1.4.3"
+  version      = "~> 2.5.0"
   project_id   = var.project_id
   network_name = (
     var.first_run
@@ -72,33 +72,16 @@ resource "google_compute_router" "nat_router" {
   }
 }
 
-resource "google_compute_router_nat" "nat" {
+module "cloud-nat" {
   depends_on = [google_project_service.compute]
-  count = local.kubernetes.privateNodesEnabled ? 1 : 0
+  count      = local.kubernetes.privateNodesEnabled ? 1 : 0
 
-  name                               = "nat"
-  router                             = google_compute_router.nat_router[0].name
-  region                             = var.region
-  nat_ip_allocate_option             = "AUTO_ONLY"
-  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  source     = "terraform-google-modules/cloud-nat/google"
+  version    = "~> 1.3"
+  project_id = var.project_id
+  region     = var.region
+  router     = google_compute_router.nat_router[0].name
 }
-
-/* TODO: use gke-nat-gateway or gke-ha-nat-gateway once it works
-module "nat" {
-  source  = "GoogleCloudPlatform/nat-gateway/google//examples/gke-ha-nat-gateway"
-  version = "1.2.2"
-
-  region          = var.region
-  zone1           = length(module.kubernetes.zones) > 0 ? module.kubernetes.zones[0] : null
-  zone2           = length(module.kubernetes.zones) > 1 ? module.kubernetes.zones[1] : null
-  zone3           = length(module.kubernetes.zones) > 2 ? module.kubernetes.zones[2] : null
-  gke_master_ip   = local.master_ipv4_cidr_block
-  # TODO: get network tag from instance template
-  gke_node_tag    = "gke-${kubernetes_name}-XXXXXXXX-node"
-  network         = module.kubernetes.network
-  subnetwork      = module.kubernetes.subnetwork
-}
-*/
 
 /* Private peering network for accessing Google services (Cloud SQL, etc.) */
 

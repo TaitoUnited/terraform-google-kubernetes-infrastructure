@@ -20,14 +20,14 @@ provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
-  version = "~> 2.18.0"
+  version = "~> 3.36.0"
 }
 
 provider "google-beta" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
-  version = "~> 2.18.0"
+  version = "~> 3.36.0"
 }
 
 provider "helm" {
@@ -43,8 +43,8 @@ data "google_project" "zone" {
 }
 
 locals {
-  nginx_ingress_version      = "1.26.2"
-  cert_manager_version       = "0.11.0"
+  nginx_ingress_version      = "2.12.1"
+  cert_manager_version       = "1.0.0-beta.0"
 
   network_name           = "${var.name}-network"
   subnet_name            = "${var.name}-subnet"
@@ -57,10 +57,6 @@ locals {
     var.variables.owners != null ? var.variables.owners : [], []
   )
 
-  editors = try(
-    var.variables.editors != null ? var.variables.editors : [], []
-  )
-
   viewers = try(
     var.variables.viewers != null ? var.variables.viewers : [], []
   )
@@ -69,8 +65,16 @@ locals {
     var.variables.developers != null ? var.variables.developers : [], []
   )
 
+  statusviewers = try(
+    var.variables.statusviewers != null ? var.variables.statusviewers : [], []
+  )
+
   externals = try(
     var.variables.externals != null ? var.variables.externals : [], []
+  )
+
+  dataviewers = try(
+    var.variables.dataviewers != null ? var.variables.dataviewers : [], []
   )
 
   kubernetes = var.variables.kubernetes
@@ -102,5 +106,35 @@ locals {
     : [],
     []
   )
+
+  postgresUsers = flatten([
+    for postgres in keys(local.postgresClusters) : [
+      for user in postgres.users : {
+        postgresName = postgres.name
+        username     = user.username
+      }
+    ]
+  ])
+
+  mysqlUsers = flatten([
+    for mysql in keys(local.mysqlClusters) : [
+      for user in mysql.users : {
+        mysqlName = mysql.name
+        username    = user.username
+      }
+    ]
+  ])
+
+  storageBuckets = try(
+    var.variables.storageBuckets != null
+    ? var.variables.storageBuckets
+    : [],
+    []
+  )
+
+  cdnStorageBuckets = flatten([
+    for bucket in keys(local.storageBuckets):
+    try(bucket.cdnDomain, "") != "" ? [ bucket ] : []
+  ])
 
 }

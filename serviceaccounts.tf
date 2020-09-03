@@ -15,12 +15,14 @@
  */
 
 resource "google_service_account" "database_proxy" {
+  count        = var.database_proxy_enabled ? 1 : 0
   depends_on   = [google_project_service.compute]
   account_id   = "database-proxy"
   display_name = "database-proxy"
 }
 
 resource "google_service_account" "cicd_tester" {
+  count        = var.cicd_testing_enabled ? 1 : 0
   depends_on   = [google_project_service.compute]
   account_id   = "cicd-tester"
   display_name = "cicd-tester"

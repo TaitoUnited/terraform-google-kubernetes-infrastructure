@@ -50,19 +50,49 @@ resource "google_sql_database_instance" "postgres" {
       }
     }
 
+    dynamic "database_flags" {
+      for_each = local.postgresClusters[count.index].flags
+      content {
+        name                = database_flags.key
+        value               = database_flags.value
+      }
+    }
+
     maintenance_window {
-      day          = 2
-      hour         = 2
+      day          = local.postgresClusters[count.index].maintenanceDay
+      hour         = local.postgresClusters[count.index].maintenanceHour
       update_track = "stable"
     }
 
     backup_configuration {
       enabled    = "true"
-      start_time = "05:00"
+      start_time = local.postgresClusters[count.index].backupStartTime
+      point_in_time_recovery_enabled = local.postgresClusters[count.index].pointInTimeRecoveryEnabled
     }
   }
 
   lifecycle {
     prevent_destroy = true
   }
+}
+
+resource "random_string" "postgres_user_password" {
+  count    = length(local.postgresUsers)
+
+  length  = 32
+  special = false
+  upper   = true
+
+  keepers = {
+    postgres_instance = local.postgresUsers[count.index].postgresName
+    username          = local.postgresUsers[count.index].username
+  }
+}
+
+resource "google_sql_user" "postgres_user" {
+  count    = length(local.postgresUsers)
+  name     = local.postgresUsers[count.index].username
+  host     = "%"
+  instance = local.postgresUsers[count.index].postgresName
+  password = random_string.postgres_user_password[count.index].result
 }

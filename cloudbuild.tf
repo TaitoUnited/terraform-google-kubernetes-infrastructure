@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-resource "helm_release" "google_kubernetes" {
-  depends_on = [module.kubernetes]
+# TODO: Create cloud build slack notifier:
+# https://cloud.google.com/cloud-build/docs/configuring-notifications/configure-slack
 
-  count      = var.helm_enabled ? 1 : 0
-
-  name       = "google-kubernetes"
-  namespace  = "google"
-  chart      = "${path.module}/google-kubernetes"
-
-  set {
-    name     = "email"
-    value    = var.email
-  }
-}
+# TODO: Optionally use worker pool for cloud builds:
+# - https://cloud.google.com/sdk/gcloud/reference/beta/builds/worker-pools/create
+# - Private network access -> Kubenetes master API can be limited to specific CIDRs
+# - CI/CD tests run faster since database is located in the same region.

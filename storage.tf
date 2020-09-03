@@ -12,98 +12,82 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
 
-resource "google_storage_bucket" "state" {
-  depends_on = [google_project_service.compute]
+resource "google_storage_bucket" "bucket" {
+  depends_on    = [google_project_service.compute]
 
-  count         = var.state_bucket != "" ? 1 : 0
-  name          = var.state_bucket
-  storage_class = "REGIONAL"
-  location      = var.region
-
-  labels = {
-    project = var.project_id
-    purpose = "state"
-  }
-
-  versioning {
-    enabled = true
-  }
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-    condition {
-      with_state = "ARCHIVED"
-      age        = var.archive_day_limit
-    }
-  }
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "google_storage_bucket" "projects" {
-  depends_on = [google_project_service.compute]
-
-  count         = var.projects_bucket != "" ? 1 : 0
-  name          = var.projects_bucket
-  storage_class = "REGIONAL"
-  location      = var.region
+  count         = length(local.storageBuckets)
+  name          = local.storageBuckets[count.index].name
+  location      = local.storageBuckets[count.index].location
+  storage_class = local.storageBuckets[count.index].storageClass
 
   labels = {
-    project = var.project_id
-    purpose = "projects"
-  }
-
-  versioning {
-    enabled = true
-  }
-  lifecycle_rule {
-    action {
-      type = "Delete"
-    }
-    condition {
-      with_state = "ARCHIVED"
-      age        = var.archive_day_limit
-    }
-  }
-
-  lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "google_storage_bucket" "public" {
-  depends_on = [google_project_service.compute]
-
-  count         = var.public_bucket != "" ? 1 : 0
-  name          = var.public_bucket
-  storage_class = "REGIONAL"
-  location      = var.region
-
-  labels = {
-    project = var.project_id
-    purpose = "public"
+    project   = var.project_id
+    purpose   = local.storageBuckets[count.index].purpose
   }
 
   cors {
-    origin          = ["*"]
-    method          = ["GET", "HEAD"]
+    origin = [
+      for cors in local.storageBuckets[count.index].cors:
+      cors.domain
+    ]
+    method = ["GET"]
+  }
+
+  dynamic "cors" {
+    for_each = try(local.storageBuckets[count.index].cors, null) != null ? [local.storageBuckets[count.index].cors] : []
+    content {
+      origin = cors.origin
+      method = try(cors.method, ["GET"])
+      response_header = try(cors.responseHeader, ["*"])
+      max_age_seconds = try(cors.maxAgeSeconds, 5)
+    }
   }
 
   versioning {
-    enabled = true
+    enabled = local.storageBuckets[count.index].versioningEnabled
   }
-  lifecycle_rule {
-    action {
-      type = "Delete"
+
+  # transition
+  dynamic "lifecycle_rule" {
+    for_each = try(local.storageBuckets[count.index].transitionRetainDays, null) != null ? [1] : []
+    content {
+      condition {
+        age = local.storageBuckets[count.index].transitionRetainDays
+      }
+      action {
+        type = "SetStorageClass"
+        storage_class = local.storageBuckets[count.index].transitionStorageClass
+      }
     }
-    condition {
-      with_state = "ARCHIVED"
-      age        = var.archive_day_limit
+  }
+
+  # versioning
+  dynamic "lifecycle_rule" {
+    for_each = try(local.storageBuckets[count.index].versioningRetainDays, null) != null ? [1] : []
+    content {
+      condition {
+        age = local.storageBuckets[count.index].versioningRetainDays
+        with_state = "ARCHIVED"
+      }
+      action {
+        type = "Delete"
+      }
+    }
+  }
+
+  # autoDeletion
+  dynamic "lifecycle_rule" {
+    for_each = try(local.storageBuckets[count.index].autoDeletionRetainDays, null) != null ? [1] : []
+    content {
+      condition {
+        age = local.storageBuckets[count.index].autoDeletionRetainDays
+        with_state = "ANY"
+      }
+      action {
+        type = "Delete"
+      }
     }
   }
 

@@ -25,10 +25,9 @@ resource "google_sql_database_instance" "mysql" {
   database_version = local.mysqlClusters[count.index].version
   region           = var.region
 
-  # TODO: How to enable high availability for mysql?
-
   settings {
     tier              = local.mysqlClusters[count.index].tier
+    availability_type = local.postgresClusters[count.index].highAvailabilityEnabled ? "REGIONAL" : "ZONAL"
 
     location_preference {
       zone = var.zone
@@ -52,14 +51,16 @@ resource "google_sql_database_instance" "mysql" {
     }
 
     maintenance_window {
-      day          = 2
-      hour         = 2
+      day          = local.mysqlClusters[count.index].maintenanceDay
+      hour         = local.mysqlClusters[count.index].maintenanceHour
       update_track = "stable"
     }
 
     backup_configuration {
-      enabled    = "true"
-      start_time = "04:00"
+      enabled            = "true"
+      binary_log_enabled = "true"
+      start_time = local.mysqlClusters[count.index].backupStartTime
+      point_in_time_recovery_enabled = local.mysqlClusters[count.index].pointInTimeRecoveryEnabled
     }
   }
 
@@ -87,4 +88,25 @@ resource "google_sql_user" "mysql_admin" {
   host     = "%"
   instance = google_sql_database_instance.mysql[count.index].name
   password = random_string.mysql_admin_password[count.index].result
+}
+
+resource "random_string" "mysql_user_password" {
+  count    = length(local.mysqlUsers)
+
+  length  = 32
+  special = false
+  upper   = true
+
+  keepers = {
+    mysql_instance = local.mysqlUsers[count.index].mysqlName
+    username       = local.mysqlUsers[count.index].username
+  }
+}
+
+resource "google_sql_user" "mysql_user" {
+  count    = length(local.mysqlUsers)
+  name     = local.mysqlUsers[count.index].username
+  host     = "%"
+  instance = local.mysqlUsers[count.index].mysqlName
+  password = random_string.mysql_user_password[count.index].result
 }

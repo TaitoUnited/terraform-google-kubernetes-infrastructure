@@ -16,7 +16,7 @@
 
 module "kubernetes" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster"
-  version = "6.1.1"
+  version = "11.0.0"
 
   project_id                     = (
     var.first_run
@@ -57,36 +57,56 @@ module "kubernetes" {
 
   create_service_account          = true
   grant_registry_access           = true
-  # TODO: registry project param
-  registry_project_id             = var.project_id
+  registry_project_id             = (
+                                      local.kubernetes.registryProjectId != ""
+                                        ? local.kubernetes.registryProjectId
+                                        : var.project_id
+                                    )
 
-  enable_private_endpoint         = false
+  add_cluster_firewall_rules      = local.kubernetes.clusterFirewallRulesEnabled
+  enable_private_endpoint         = local.kubernetes.masterPrivateEndpointEnabled
+  master_global_access_enabled    = local.kubernetes.masterGlobalAccessEnabled
   enable_private_nodes            = local.kubernetes.privateNodesEnabled
   network_policy                  = local.kubernetes.networkPolicyEnabled
   # network_policy_provider         = "CALICO"
   enable_shielded_nodes           = local.kubernetes.shieldedNodesEnabled
-  enable_vertical_pod_autoscaling = true
+  # sandbox_enabled                 = local.kubernetes.sandboxEnabled
+  enable_vertical_pod_autoscaling = local.kubernetes.verticalPodAutoscalingEnabled
   horizontal_pod_autoscaling      = true
   http_load_balancing             = true
+  dns_cache                       = local.kubernetes.dnsCacheEnabled
+  gce_pd_csi_driver               = local.kubernetes.pdCsiDriverEnabled
+
+  resource_usage_export_dataset_id   = local.kubernetes.resourceConsumptionExportDatasetId
+  enable_resource_consumption_export = local.kubernetes.resourceConsumptionExportEnabled
+  enable_network_egress_export    = local.kubernetes.networkEgressExportEnabled
+  enable_binary_authorization     = local.kubernetes.binaryAuthorizationEnabled
+  enable_intranode_visibility     = local.kubernetes.intranodeVisibilityEnabled
+
   logging_service                 = "logging.googleapis.com/kubernetes"
   monitoring_service              = "monitoring.googleapis.com/kubernetes"
+
+  config_connector                = local.kubernetes.configConnectorEnabled
   istio                           = local.kubernetes.istioEnabled
   cloudrun                        = local.kubernetes.cloudrunEnabled
+
+  # Enable G Suite groups for access control
+  authenticator_security_group    = local.kubernetes.authenticatorSecurityGroup
 
   pod_security_policy_config = local.kubernetes.podSecurityPolicyEnabled ? [{
     "enabled" = true
   }] : []
 
   kubernetes_version        = null
-    # was: local.kubernetes.releaseChannel == "STABLE" ? "1.13.11-gke.14" : "latest"
   release_channel           = local.kubernetes.releaseChannel
-  maintenance_start_time    = "02:00"
+  maintenance_start_time    = local.kubernetes.maintenanceStartTime
 
-  # TODO: resource_usage_export_dataset_id
+  node_metadata             = "GKE_METADATA_SERVER"
 
-  # TODO: Workload identity
-  # identity_namespace        = "${data.google_project.zone.project_id}.svc.id.goog"
-  # node_metadata             = "GKE_METADATA_SERVER"
+  identity_namespace        = "enabled"
+
+  # TODO: Cluster autoscaling configuration (defaults are ok?)
+  # cluster_autoscaling     = map
 
   remove_default_node_pool  = true
   initial_node_count        = 1
@@ -97,6 +117,7 @@ module "kubernetes" {
       {
         name                  = "${local.kubernetes.name}-default"
         # service_account     = var.compute_engine_service_account
+        node_locations        = nodePool.locations
         initial_node_count    = nodePool.minNodeCount
         min_count             = nodePool.minNodeCount
         max_count             = nodePool.maxNodeCount
@@ -104,20 +125,17 @@ module "kubernetes" {
         auto_repair           = true
         auto_upgrade          = true
         disk_size_gb          = nodePool.diskSizeGb
-        # TODO: image_type    = "COS_CONTAINERD"
-        machine_type          = nodePool.machineType
 
-        # TODO: these are ignored
-        # node_metadata               = "GKE_METADATA_SERVER"
-        # enable_secure_boot          = local.kubernetes.shieldedNodesEnabled
-        # enable_integrity_monitoring = local.kubernetes.shieldedNodesEnabled
+        image_type            = "COS_CONTAINERD"
+        machine_type          = nodePool.machineType
+        accelerator_type      = nodePool.acceleratorType
+        accelerator_count     = nodePool.acceleratorCount
+
+        enable_secure_boot    = local.kubernetes.secureBootEnabled
+        enable_integrity_monitoring = true
       }
     ]
   )
 
   # TODO: prevent destroy -> https://github.com/hashicorp/terraform/issues/18367
 }
-
-# TODO: Obsolete?
-# data "google_client_config" "default" {
-# }

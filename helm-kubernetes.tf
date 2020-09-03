@@ -14,6 +14,28 @@
  * limitations under the License.
  */
 
-# TODO: Create notification channels here.
-# Getting auth token for slack is not so easy?
-# https://stackoverflow.com/questions/54884815/obtain-slack-auth-token-for-terraform-google-monitoring-notification-channel-res
+resource "helm_release" "kubernetes" {
+  depends_on = [module.kubernetes]
+
+  count      = var.helm_enabled ? 1 : 0
+
+  name       = "kubernetes"
+  namespace  = "google"
+  chart      = "${path.module}/kubernetes"
+
+  set {
+    name     = "dbProxyNamespace"
+    value    = "db-proxy"
+  }
+
+  set {
+    name     = "dbProxyAccessors"
+    value    = concat(local.viewers, local.statusviewers, local.externals)
+  }
+
+  set {
+    name     = "globalStatusViewers"
+    value    = concat(local.viewers, local.statusviewers)
+  }
+
+}

@@ -51,6 +51,11 @@ resource "helm_release" "nginx_ingress" {
     value    = local.nginxIngressControllers[count.index].replicas
   }
 
+  set {
+    name     = "controller.maxmindLicenseKey"
+    value    = local.nginxIngressControllers[count.index].maxmindLicenseKey
+  }
+
   set_string {
     name     = "controller.service.loadBalancerIP"
     value    = google_compute_address.kubernetes_ingress[0].address
@@ -61,17 +66,34 @@ resource "helm_release" "nginx_ingress" {
     value    = "Local"
   }
 
-  /* TODO
-  set {
+  set_string {
     name     = "controller.metrics.enabled"
-    value    = "true"
+    value    = local.nginxIngressControllers[count.index].metricsEnabled
   }
 
-  set {
-    name     = "controller.stats.enabled"
-    value    = "true"
+  dynamic "set_string" {
+    for_each = local.nginxIngressControllers[count.index].configMap
+    content {
+      name   = "controller.config." + set_string.key
+      value  = set_string.value
+    }
   }
-  */
+
+  dynamic "set" {
+    for_each = local.nginxIngressControllers[count.index].tcpServices
+    content {
+      name   = "tcp." + set.key
+      value  = set.value
+    }
+  }
+
+  dynamic "set" {
+    for_each = local.nginxIngressControllers[count.index].udpServices
+    content {
+      name   = "udp." + set.key
+      value  = set.value
+    }
+  }
 }
 
 resource "helm_release" "cert_manager_crd" {
@@ -128,12 +150,6 @@ resource "helm_release" "cert_manager" {
   set {
     name     = "serviceAccount.create"
     value    = "true"
-  }
-
-  # TODO: https://cert-manager.io/docs/installation/compatibility/
-  set {
-    name     = "webhook.enabled"
-    value    = local.kubernetes.privateNodesEnabled ? "false" : "true"
   }
 }
 

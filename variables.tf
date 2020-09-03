@@ -67,10 +67,22 @@ variable "enable_private_google_services" {
   description = "If true, private peering network is created to access Google services."
 }
 
-variable "cicd_deploy_enabled" {
+variable "cicd_cloud_deploy_enabled" {
   type        = bool
   default     = true
   description = "If true, cloudbuild service account is given deployment permissions."
+}
+
+variable "cicd_testing_enabled" {
+  type        = bool
+  default     = true
+  description = "If true, testing service account is created and given necessary permissions for db access."
+}
+
+variable "database_proxy_enabled" {
+  type        = bool
+  default     = true
+  description = "If true, database proxy service account is created and given necessary permissions for db access."
 }
 
 variable "email" {
@@ -81,24 +93,4 @@ variable "email" {
 variable "archive_day_limit" {
   type        = number
   description = "Defines how long storage bucket files should be kept in archive after they have been deleted."
-}
-
-/* Buckets */
-
-variable "state_bucket" {
-  type    = string
-  default = ""
-  description = "Name of storage bucket used for storing remote Terraform state."
-}
-
-variable "projects_bucket" {
-  type    = string
-  default = ""
-  description = "Name of storage bucket used for storing function packages, etc."
-}
-
-variable "public_bucket" {
-  type    = string
-  default = ""
-  description = "Name of storage bucket used for storing static assets."
 }
