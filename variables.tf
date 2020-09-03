@@ -89,8 +89,3 @@ variable "email" {
   type = string
   description = "Email address for DevOps support."
 }
-
-variable "archive_day_limit" {
-  type        = number
-  description = "Defines how long storage bucket files should be kept in archive after they have been deleted."
-}

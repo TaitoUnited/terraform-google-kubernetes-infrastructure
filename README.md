@@ -25,6 +25,26 @@ externals:
   - user:jane.external@anotherdomain.com
 
 #--------------------------------------------------------------------
+# DNS
+#--------------------------------------------------------------------
+
+dnsZones:
+  - name: my-domain
+    dnsName: mydomain.com.
+    visibility: public
+    dnsSec:
+      state: on
+    recordSets:
+      - dnsName: www.mydomain.com.
+        type: A
+        ttl: 3600
+        values: ["127.127.127.127"]
+      - dnsName: myapp.mydomain.com.
+        type: CNAME
+        ttl: 43200
+        values: ["myapp.otherdomain.com."]
+
+#--------------------------------------------------------------------
 # Kubernetes
 #--------------------------------------------------------------------
 
@@ -104,6 +124,15 @@ kubernetes:
         3000: my-namespace/my-tcp-service:9000
       udpServices:
         3001: my-namespace/my-udp-service:9001
+  # TODO: Kafka, Jaeger, Jenkins X, and Tekton installation not supported yet
+  kafka:
+    enabled: false
+  jaeger:
+    enabled: false
+  jenkinsx:
+    enabled: false
+  tekton:
+    enabled: false
 
 #--------------------------------------------------------------------
 # Databases

@@ -53,6 +53,8 @@ locals {
   svc_range_name         = "${var.name}-ip-range-svc"
   kubernetes_master_cidr = "172.16.0.0/28"
 
+  # Users
+
   owners = try(
     var.variables.owners != null ? var.variables.owners : [], []
   )
@@ -77,6 +79,25 @@ locals {
     var.variables.dataviewers != null ? var.variables.dataviewers : [], []
   )
 
+  # DNS
+
+  dnsZones = try(
+    var.variables.dnsZones != null
+    ? var.variables.dnsZones
+    : [],
+    []
+  )
+
+  dnsZoneRecordSets = flatten([
+    for dnsZone in keys(local.dnsZones) : [
+      for dnsRecordSet in dnsZone.recordSets : merge(dnsRecordSet, {
+        dnsZone = dnsZone
+      })
+    ]
+  ])
+
+  # Kubernetes
+
   kubernetes = var.variables.kubernetes
 
   nodePools = try(
@@ -92,6 +113,8 @@ locals {
     : [],
     []
   )
+
+  # Databases
 
   postgresClusters = try(
     var.variables.postgresClusters != null
@@ -124,6 +147,8 @@ locals {
       }
     ]
   ])
+
+  # Storage buckets
 
   storageBuckets = try(
     var.variables.storageBuckets != null
