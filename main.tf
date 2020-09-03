@@ -96,6 +96,35 @@ locals {
     ]
   ])
 
+  # Alerts
+
+  origAlerts = try(
+    var.variables.alerts != null
+    ? var.variables.alerts
+    : [],
+    []
+  )
+
+  alertChannelNames = flatten([
+    for alert in local.origAlerts:
+    try(alert.channels, [])
+  ])
+
+  alerts = flatten([
+    for alert in local.origAlerts:
+    merge(alert, {
+      channelIndices = (
+        for channel in alert.channels:
+        index(alertChannelNames, channel)
+      )
+    })
+  ])
+
+  logAlerts = flatten([
+    for alert in local.alerts:
+    try(alert.type, "") == "log" ? [ alert ] : []
+  ])
+
   # Kubernetes
 
   kubernetes = var.variables.kubernetes

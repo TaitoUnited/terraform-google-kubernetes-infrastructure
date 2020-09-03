@@ -14,6 +14,17 @@
  * limitations under the License.
  */
 
+resource "google_logging_metric" "log_alert_metric" {
+  count = length(local.logAlerts)
+
+  name   = local.logAlerts[count.index].name
+  filter = local.logAlerts[count.index].rule
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+  }
+}
+
 /* TODO: not working anymore
 resource "google_logging_project_sink" "logs" {
   depends_on = [google_project_service.compute]

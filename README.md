@@ -46,6 +46,21 @@ dnsZones:
         values: ["myapp.otherdomain.com."]
 
 #--------------------------------------------------------------------
+# Alerts
+#--------------------------------------------------------------------
+
+# NOTE: This module does not currently create notification channels.
+# You have to create them manually (e.g. the 'monitoring' channel shown below).
+
+alerts:
+  - name: kubernetes-container-errors
+    type: log
+    channels: [ "monitoring" ]
+    rule: >
+      resource.type="k8s_container"
+      severity>=ERROR
+
+#--------------------------------------------------------------------
 # Kubernetes
 #--------------------------------------------------------------------
 

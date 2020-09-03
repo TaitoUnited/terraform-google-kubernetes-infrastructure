@@ -17,3 +17,38 @@
 # TODO: Create notification channels here.
 # Getting auth token for slack is not so easy?
 # https://stackoverflow.com/questions/54884815/obtain-slack-auth-token-for-terraform-google-monitoring-notification-channel-res
+
+data "google_monitoring_notification_channel" "alert_channel" {
+  count        = length(local.alertChannelNames)
+  display_name = local.alertChannelNames[count.index]
+}
+
+resource "google_monitoring_alert_policy" "log_alert_policy" {
+  depends_on = [
+    google_monitoring_notification_channel.alert_channel
+    google_logging_metric.log_alert_metric
+  ]
+  count = length(local.logAlerts)
+
+  display_name          = local.logAlerts[count.index].name
+  enabled               = true
+  notification_channels = [
+    for i in local.logAlerts[count.index].channelIndices:
+    data.google_monitoring_notification_channel.channel[i].name
+  ]
+
+  combiner     = "OR"
+  conditions {
+    display_name = local.logAlerts[count.index].name
+    condition_threshold {
+      filter     = "metric.type=\"logging.googleapis.com/user/${local.logAlerts[count.index].name}\""
+        # was also: AND resource.type=\"k8s_container\"
+      duration   = "0" # was 60s
+      comparison = "COMPARISON_GT"
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_RATE"
+      }
+    }
+  }
+}
