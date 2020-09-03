@@ -61,12 +61,6 @@ variable "enable_google_services" {
   description = "If true, required google services are enabled by this module."
 }
 
-variable "enable_private_google_services" {
-  type        = bool
-  default     = true
-  description = "If true, private peering network is created to access Google services."
-}
-
 variable "cicd_cloud_deploy_enabled" {
   type        = bool
   default     = true

@@ -17,7 +17,7 @@
 resource "helm_release" "nginx_ingress" {
   depends_on = [module.kubernetes]
 
-  count      = var.helm_enabled ? length(local.nginxIngressControllers) : 0
+  count      = local.helmEnabled ? length(local.nginxIngressControllers) : 0
 
   name       = "nginx-ingress"
   namespace  = "nginx-ingress"
@@ -115,7 +115,7 @@ resource "helm_release" "nginx_ingress" {
 resource "helm_release" "cert_manager_crd" {
   depends_on = [module.kubernetes, helm_release.nginx_ingress]
 
-  count      = var.helm_enabled ? 1 : 0
+  count      = local.helmEnabled ? 1 : 0
 
   name       = "cert-manager-crd"
   namespace  = "cert-manager-crd"
@@ -128,7 +128,7 @@ resource "null_resource" "cert_manager_crd_wait" {
   depends_on = [helm_release.cert_manager_crd]
 
   triggers = {
-    helm_enabled         = var.helm_enabled
+    helm_enabled         = local.helmEnabled
     cert_manager_version = local.cert_manager_version
   }
 
@@ -140,7 +140,7 @@ resource "null_resource" "cert_manager_crd_wait" {
 resource "helm_release" "cert_manager" {
   depends_on = [module.kubernetes, null_resource.cert_manager_crd_wait]
 
-  count      = var.helm_enabled ? 1 : 0
+  count      = local.helmEnabled ? 1 : 0
 
   name       = "cert-manager"
   namespace  = "cert-manager"
@@ -172,7 +172,7 @@ resource "helm_release" "cert_manager" {
 resource "helm_release" "letsencrypt_issuer" {
   depends_on = [module.kubernetes, helm_release.cert_manager]
 
-  count      = var.helm_enabled ? 1 : 0
+  count      = local.helmEnabled ? 1 : 0
 
   name       = "letsencrypt-issuer"
   namespace  = "cert-manager"

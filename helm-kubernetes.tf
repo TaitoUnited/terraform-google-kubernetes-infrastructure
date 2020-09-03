@@ -17,7 +17,7 @@
 resource "helm_release" "kubernetes" {
   depends_on = [module.kubernetes]
 
-  count      = var.helm_enabled ? 1 : 0
+  count      = local.helmEnabled ? 1 : 0
 
   name       = "kubernetes"
   namespace  = "google"

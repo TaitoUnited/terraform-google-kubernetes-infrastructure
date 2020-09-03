@@ -17,7 +17,7 @@
 resource "google_kms_key_ring_iam_member" "kms_encrypter" {
   depends_on = [ null_resource.service_wait ]
 
-  count       = local.kubernetes.dbEncryptionEnabled ? 1 : 0
+  count       = try(local.kubernetes.dbEncryptionEnabled, false) ? 1 : 0
   key_ring_id = google_kms_key_ring.zone_key_ring[0].self_link
   role        = "roles/cloudkms.cryptoKeyEncrypter"
 
@@ -27,7 +27,7 @@ resource "google_kms_key_ring_iam_member" "kms_encrypter" {
 resource "google_kms_key_ring_iam_member" "kms_decrypter" {
   depends_on = [ null_resource.service_wait ]
 
-  count       = local.kubernetes.dbEncryptionEnabled ? 1 : 0
+  count       = try(local.kubernetes.dbEncryptionEnabled, false) ? 1 : 0
   key_ring_id = google_kms_key_ring.zone_key_ring[0].self_link
   role        = "roles/cloudkms.cryptoKeyDecrypter"
 

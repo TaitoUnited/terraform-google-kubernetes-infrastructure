@@ -17,7 +17,7 @@
 resource "google_kms_key_ring" "zone_key_ring" {
   depends_on = [ null_resource.service_wait ]
 
-  count      = local.kubernetes.dbEncryptionEnabled ? 1 : 0
+  count      = try(local.kubernetes.dbEncryptionEnabled, false) ? 1 : 0
   name       = "${var.name}-key-ring"
   project    = var.project_id
   location   = var.region
@@ -26,7 +26,7 @@ resource "google_kms_key_ring" "zone_key_ring" {
 resource "google_kms_crypto_key" "kubernetes_key" {
   depends_on = [ null_resource.service_wait ]
 
-  count           = (local.kubernetes.dbEncryptionEnabled ? 1 : 0) * (local.kubernetes.name != "" ? 1 : 0)
+  count           = (try(local.kubernetes.dbEncryptionEnabled, false) ? 1 : 0) * (try(local.kubernetes.name, "") != "" ? 1 : 0)
   name            = "${local.kubernetes.name}-key"
   key_ring        = google_kms_key_ring.zone_key_ring[0].self_link
   rotation_period = "7776000s" # 90 days

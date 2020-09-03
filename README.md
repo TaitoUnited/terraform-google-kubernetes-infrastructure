@@ -46,6 +46,15 @@ dnsZones:
         values: ["myapp.otherdomain.com."]
 
 #--------------------------------------------------------------------
+# Network
+#--------------------------------------------------------------------
+
+network:
+  create: true
+  natEnabled: true # Required if kubernetes.privateNodesEnabled is true
+  privateGoogleServicesEnabled: true
+
+#--------------------------------------------------------------------
 # Alerts
 #--------------------------------------------------------------------
 
@@ -64,7 +73,6 @@ alerts:
 # Kubernetes
 #--------------------------------------------------------------------
 
-# TODO: support for multiple kubernetes clusters
 # For Kubernetes setting descriptions, see
 # https://registry.terraform.io/modules/terraform-google-modules/kubernetes-engine/google/
 kubernetes:

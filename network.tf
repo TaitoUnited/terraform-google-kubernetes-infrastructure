@@ -17,6 +17,8 @@
 module "network" {
   source       = "terraform-google-modules/network/google"
   version      = "~> 2.5.0"
+  count        = try(local.network.create, false) ? 1 : 0
+
   project_id   = var.project_id
   network_name = (
     var.first_run
@@ -55,18 +57,18 @@ data "external" "network_wait" {
     google_service_networking_connection.private_vpc_connection
   ]
 
-  program = ["sh", "-c", "sleep 15; echo '{ \"network_name\": \"${module.network.network_name}\", \"network_self_link\": \"${module.network.network_self_link}\" }'"]
+  program = ["sh", "-c", "sleep 15; echo '{ \"network_name\": \"${module.network[0].network_name}\", \"network_self_link\": \"${module.network.network_self_link}\" }'"]
 }
 
 /* NAT */
 
 resource "google_compute_router" "nat_router" {
   depends_on = [google_project_service.compute]
-  count   = local.kubernetes.privateNodesEnabled ? 1 : 0
+  count   = try(local.network.natEnabled, false) ? 1 : 0
 
   name    = "nat-router"
   region  = var.region
-  network = module.network.network_name
+  network = module.network[0].network_name
   bgp {
     asn = 64514
   }
@@ -74,7 +76,7 @@ resource "google_compute_router" "nat_router" {
 
 module "cloud-nat" {
   depends_on = [google_project_service.compute]
-  count      = local.kubernetes.privateNodesEnabled ? 1 : 0
+  count      = try(local.network.natEnabled, false) ? 1 : 0
 
   source     = "terraform-google-modules/cloud-nat/google"
   version    = "~> 1.3"
@@ -87,7 +89,7 @@ module "cloud-nat" {
 
 resource "google_compute_global_address" "private_ip_address" {
   depends_on    = [google_project_service.servicenetworking]
-  count         = var.enable_private_google_services ? 1 : 0
+  count         = local.network.privateGoogleServicesEnabled ? 1 : 0
 
   provider      = google-beta
   project       = data.google_project.zone.project_id
@@ -95,15 +97,15 @@ resource "google_compute_global_address" "private_ip_address" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
-  network       = module.network.network_self_link
+  network       = module.network[0].network_self_link
 }
 
 resource "google_service_networking_connection" "private_vpc_connection" {
   depends_on    = [google_project_service.servicenetworking]
-  count         = var.enable_private_google_services ? 1 : 0
+  count         = local.network.privateGoogleServicesEnabled ? 1 : 0
 
   provider                = google-beta
-  network                 = module.network.network_self_link
+  network                 = module.network[0].network_self_link
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address[0].name]
 }
@@ -112,7 +114,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 
 resource "google_compute_address" "kubernetes_ingress" {
   depends_on  = [google_project_service.compute]
-  count       = local.kubernetes.name != "" ? 1 : 0
+  count       = try(local.kubernetes.name, "") != "" ? 1 : 0
   name        = "${local.kubernetes.name}-ingress"
   description = "Kubernetes ingress public static IP address"
 }

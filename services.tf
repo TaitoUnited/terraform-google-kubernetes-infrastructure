@@ -118,7 +118,7 @@ resource "null_resource" "service_wait" {
   triggers = {
     name                   = var.name
     enable_google_services = var.enable_google_services
-    kubernetes_name        = local.kubernetes.name
+    kubernetes_name        = try(local.kubernetes.name, "")
   }
 
   provisioner "local-exec" {

@@ -17,7 +17,7 @@
 resource "helm_release" "postgres_proxy" {
   depends_on = [module.kubernetes, helm_release.letsencrypt_issuer]
 
-  count      = var.helm_enabled ? length(local.postgresClusters) : 0
+  count      = local.helmEnabled ? length(local.postgresClusters) : 0
   name       = local.postgresClusters[count.index].name
   namespace  = "db-proxy"
   chart      = "${path.module}/sql-proxy"
@@ -41,7 +41,7 @@ resource "helm_release" "postgres_proxy" {
 resource "helm_release" "mysql_proxy" {
   depends_on = [module.kubernetes, helm_release.postgres_proxy]
 
-  count      = var.helm_enabled ? length(local.mysqlClusters) : 0
+  count      = local.helmEnabled ? length(local.mysqlClusters) : 0
   name       = local.mysqlClusters[count.index].name
   namespace  = "db-proxy"
   chart      = "${path.module}/sql-proxy"

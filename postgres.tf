@@ -38,7 +38,7 @@ resource "google_sql_database_instance" "postgres" {
       private_network = (
         var.first_run
           ? data.external.network_wait.result.network_self_link
-          : module.network.network_self_link
+          : module.network[0].network_self_link
       )
       require_ssl     = "true"
 

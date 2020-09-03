@@ -96,6 +96,10 @@ locals {
     ]
   ])
 
+  # Network
+
+  network = try(var.variables.network, null)
+
   # Alerts
 
   origAlerts = try(
@@ -127,21 +131,23 @@ locals {
 
   # Kubernetes
 
-  kubernetes = var.variables.kubernetes
+  kubernetes = try(var.variables.kubernetes, null)
 
   nodePools = try(
-    var.variables.kubernetes.nodePools != null
-    ? var.variables.kubernetes.nodePools
+    local.kubernetes.nodePools != null
+    ? local.kubernetes.nodePools
     : [],
     []
   )
 
   nginxIngressControllers = try(
-    var.variables.kubernetes.nginxIngressControllers != null
-    ? var.variables.kubernetes.nginxIngressControllers
+    local.kubernetes.nginxIngressControllers != null
+    ? local.kubernetes.nginxIngressControllers
     : [],
     []
   )
+
+  helmEnabled = local.helm_enabled && local.kubernetes != null
 
   # Databases
 

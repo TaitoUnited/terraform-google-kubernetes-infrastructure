@@ -17,6 +17,7 @@
 module "kubernetes" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster"
   version = "11.0.0"
+  count   = try(local.kubernetes.name, "") != ""
 
   project_id                     = (
     var.first_run
@@ -30,9 +31,9 @@ module "kubernetes" {
   network                        = (
     var.first_run
       ? data.external.network_wait.result.network_name
-      : module.network.network_name
+      : module.network[0].network_name
   )
-  subnetwork                     = module.network.subnets_names[0]
+  subnetwork                     = module.network[0].subnets_names[0]
   ip_range_pods                  = local.pods_range_name
   ip_range_services              = local.svc_range_name
   # compute_engine_service_account = var.compute_engine_service_account
