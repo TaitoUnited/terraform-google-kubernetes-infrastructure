@@ -35,11 +35,7 @@ resource "google_sql_database_instance" "postgres" {
 
     ip_configuration {
       ipv4_enabled    = local.postgresClusters[count.index].publicIpEnabled ? true : false
-      private_network = (
-        var.first_run
-          ? data.external.network_wait.result.network_self_link
-          : module.network[0].network_self_link
-      )
+      private_network = data.external.network_wait.result.network_self_link
       require_ssl     = "true"
 
       dynamic "authorized_networks" {

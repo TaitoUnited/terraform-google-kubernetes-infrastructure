@@ -17,22 +17,16 @@
 module "kubernetes" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster"
   version = "11.0.0"
-  count   = try(local.kubernetes.name, "") != ""
 
-  project_id                     = (
-    var.first_run
-      ? data.external.service_wait.result.project_id
-      : var.project_id
-  )
+  depends_on = [ null_resource.service_wait ]
+  count      = try(local.kubernetes.name, "") != "" ? 1 : 0
+
+  project_id                     = var.project_id
   name                           = local.kubernetes.name
   region                         = var.region
   regional                       = length(local.kubernetes.zones) == 0
   zones                          = local.kubernetes.zones
-  network                        = (
-    var.first_run
-      ? data.external.network_wait.result.network_name
-      : module.network[0].network_name
-  )
+  network                        = data.external.network_wait.result.network_name
   subnetwork                     = module.network[0].subnets_names[0]
   ip_range_pods                  = local.pods_range_name
   ip_range_services              = local.svc_range_name

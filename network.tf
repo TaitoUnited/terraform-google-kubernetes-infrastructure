@@ -17,14 +17,12 @@
 module "network" {
   source       = "terraform-google-modules/network/google"
   version      = "~> 2.5.0"
+
+  depends_on   = [ null_resource.service_wait ]
   count        = try(local.network.create, false) ? 1 : 0
 
   project_id   = var.project_id
-  network_name = (
-    var.first_run
-      ? data.external.service_wait.result.network_name
-      : local.network_name
-  )
+  network_name = local.network_name
 
   subnets = [
     {
@@ -51,6 +49,8 @@ module "network" {
 }
 
 # Provide network name only after network has been created
+# TODO: Is this still required or can it be replaced with
+# 'module.network[0].network_self_link'?
 data "external" "network_wait" {
   depends_on = [
     module.network,

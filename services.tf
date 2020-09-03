@@ -125,10 +125,3 @@ resource "null_resource" "service_wait" {
     command = "sleep 15"
   }
 }
-
-# Provide service wait also for modules (modules do not support depends_on)
-data "external" "service_wait" {
-  depends_on = [ null_resource.service_wait ]
-
-  program = ["sh", "-c", "echo '{ \"project_id\": \"${var.project_id}\", \"network_name\": \"${local.network_name}\" }'"]
-}

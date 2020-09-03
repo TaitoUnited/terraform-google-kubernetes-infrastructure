@@ -14,21 +14,6 @@
  * limitations under the License.
  */
 
-/* First run variable for setting "module dependency wait" */
-
-variable "first_run" {
-  type        = bool
-  description = "Should be set to true on the first run, and false on all subsequent executions. This is temporary hack to cope with Terraform not supporting depends_on for modules."
-}
-
-/* Helm */
-
-variable "helm_enabled" {
-  type        = bool
-  default     = "false"
-  description = "Installs helm apps if set to true. Should be set to true only after Kubernetes cluster already exists."
-}
-
 /* Labeling */
 
 variable "name" {
@@ -51,6 +36,14 @@ variable "region" {
 variable "zone" {
   type        = string
   description = "Google Cloud zone."
+}
+
+/* Helm */
+
+variable "helm_enabled" {
+  type        = bool
+  default     = "false"
+  description = "Installs helm apps if set to true. Should be set to true only after Kubernetes cluster already exists."
 }
 
 /* Settings */
