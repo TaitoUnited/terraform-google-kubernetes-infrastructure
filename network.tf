@@ -57,7 +57,7 @@ data "external" "network_wait" {
     google_service_networking_connection.private_vpc_connection
   ]
 
-  program = ["sh", "-c", "sleep 15; echo '{ \"network_name\": \"${module.network[0].network_name}\", \"network_self_link\": \"${module.network.network_self_link}\" }'"]
+  program = ["sh", "-c", "sleep 15; echo '{ \"network_name\": \"${module.network[0].network_name}\", \"network_self_link\": \"${module.network[0].network_self_link}\" }'"]
 }
 
 /* NAT */

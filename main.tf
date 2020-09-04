@@ -20,22 +20,21 @@ provider "google" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
-  version = "~> 3.36.0"
+  version = "~> 3.37.0"
 }
 
 provider "google-beta" {
   project = var.project_id
   region  = var.region
   zone    = var.zone
-  version = "~> 3.36.0"
+  version = "~> 3.37.0"
 }
 
 provider "helm" {
-  install_tiller = false
-  max_history    = 20
   kubernetes {
     config_context = local.kubernetes.context != "" ? local.kubernetes.context : var.name
   }
+  version = "~> 1.3.0"
 }
 
 data "google_project" "zone" {
@@ -117,10 +116,10 @@ locals {
   alerts = flatten([
     for alert in local.origAlerts:
     merge(alert, {
-      channelIndices = (
+      channelIndices = [
         for channel in alert.channels:
-        index(alertChannelNames, channel)
-      )
+        index(local.alertChannelNames, channel)
+      ]
     })
   ])
 
@@ -147,7 +146,7 @@ locals {
     []
   )
 
-  helmEnabled = local.helm_enabled && local.kubernetes != null
+  helmEnabled = var.helm_enabled && local.kubernetes != null
 
   # Databases
 

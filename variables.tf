@@ -76,3 +76,10 @@ variable "email" {
   type = string
   description = "Email address for DevOps support."
 }
+
+# Additional variables as a json/yaml
+
+variable "variables" {
+  type    = any
+  description = "Ingress and services as json/yaml. See README.md for format."
+}

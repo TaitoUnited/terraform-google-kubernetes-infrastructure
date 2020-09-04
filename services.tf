@@ -25,7 +25,6 @@ resource "google_project_service" "servicenetworking" {
   depends_on = [
     google_project_service.compute,
     google_project_iam_binding.owner,
-    google_project_iam_binding.editor,
   ]
   count      = var.enable_google_services ? 1 : 0
   service    = "servicenetworking.googleapis.com"

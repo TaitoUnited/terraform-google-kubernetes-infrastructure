@@ -25,8 +25,7 @@ data "google_monitoring_notification_channel" "alert_channel" {
 
 resource "google_monitoring_alert_policy" "log_alert_policy" {
   depends_on = [
-    google_monitoring_notification_channel.alert_channel
-    google_logging_metric.log_alert_metric
+    google_logging_metric.log_alert_metric,
   ]
   count = length(local.logAlerts)
 
@@ -34,7 +33,7 @@ resource "google_monitoring_alert_policy" "log_alert_policy" {
   enabled               = true
   notification_channels = [
     for i in local.logAlerts[count.index].channelIndices:
-    data.google_monitoring_notification_channel.channel[i].name
+    data.google_monitoring_notification_channel.alert_channel[i].name
   ]
 
   combiner     = "OR"

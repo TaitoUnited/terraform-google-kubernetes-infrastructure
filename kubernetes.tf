@@ -90,9 +90,7 @@ module "kubernetes" {
   # Enable G Suite groups for access control
   authenticator_security_group    = local.kubernetes.authenticatorSecurityGroup
 
-  pod_security_policy_config = local.kubernetes.podSecurityPolicyEnabled ? [{
-    "enabled" = true
-  }] : []
+  enable_pod_security_policy      = local.kubernetes.podSecurityPolicyEnabled
 
   kubernetes_version        = null
   release_channel           = local.kubernetes.releaseChannel
@@ -108,31 +106,29 @@ module "kubernetes" {
   remove_default_node_pool  = true
   initial_node_count        = 1
 
-  node_pools = (
-    for nodePool in local.kubernetes.nodePools
-    [
-      {
-        name                  = "${local.kubernetes.name}-default"
-        # service_account     = var.compute_engine_service_account
-        node_locations        = nodePool.locations
-        initial_node_count    = nodePool.minNodeCount
-        min_count             = nodePool.minNodeCount
-        max_count             = nodePool.maxNodeCount
-        autoscaling           = nodePool.minNodeCount < nodePool.maxNodeCount
-        auto_repair           = true
-        auto_upgrade          = true
-        disk_size_gb          = nodePool.diskSizeGb
+  node_pools = [
+    for nodePool in local.kubernetes.nodePools:
+    {
+      name                  = "${local.kubernetes.name}-default"
+      # service_account     = var.compute_engine_service_account
+      node_locations        = nodePool.locations
+      initial_node_count    = nodePool.minNodeCount
+      min_count             = nodePool.minNodeCount
+      max_count             = nodePool.maxNodeCount
+      autoscaling           = nodePool.minNodeCount < nodePool.maxNodeCount
+      auto_repair           = true
+      auto_upgrade          = true
+      disk_size_gb          = nodePool.diskSizeGb
 
-        image_type            = "COS_CONTAINERD"
-        machine_type          = nodePool.machineType
-        accelerator_type      = nodePool.acceleratorType
-        accelerator_count     = nodePool.acceleratorCount
+      image_type            = "COS_CONTAINERD"
+      machine_type          = nodePool.machineType
+      accelerator_type      = nodePool.acceleratorType
+      accelerator_count     = nodePool.acceleratorCount
 
-        enable_secure_boot    = local.kubernetes.secureBootEnabled
-        enable_integrity_monitoring = true
-      }
-    ]
-  )
+      enable_secure_boot    = local.kubernetes.secureBootEnabled
+      enable_integrity_monitoring = true
+    }
+  ]
 
   # TODO: prevent destroy -> https://github.com/hashicorp/terraform/issues/18367
 }

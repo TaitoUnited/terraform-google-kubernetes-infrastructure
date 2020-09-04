@@ -87,8 +87,8 @@ resource "google_project_iam_binding" "cloudsql_client" {
     local.developers,
     local.externals,
 
-    var.var.database_proxy_enabled ? [
-      "serviceAccount:${google_service_account.database_proxy.email}"
+    var.database_proxy_enabled ? [
+      "serviceAccount:${google_service_account.database_proxy[0].email}"
     ] : [],
 
     var.cicd_testing_enabled ? [
