@@ -18,8 +18,10 @@ module "kubernetes" {
   source  = "terraform-google-modules/kubernetes-engine/google//modules/beta-private-cluster"
   version = "11.0.0"
 
+  /* TODO: mobule kubernetes does not support count yet
   depends_on = [ null_resource.service_wait ]
   count      = try(local.kubernetes.name, "") != "" ? 1 : 0
+  */
 
   project_id                     = var.project_id
   name                           = local.kubernetes.name
