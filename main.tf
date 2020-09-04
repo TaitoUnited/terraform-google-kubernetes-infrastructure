@@ -55,34 +55,34 @@ locals {
   # Users
 
   owners = try(
-    var.variables.permissions.owners != null ? var.variables.permissions.owners : [], []
+    var.resources.permissions.owners != null ? var.resources.permissions.owners : [], []
   )
 
   viewers = try(
-    var.variables.permissions.viewers != null ? var.variables.permissions.viewers : [], []
+    var.resources.permissions.viewers != null ? var.resources.permissions.viewers : [], []
   )
 
   developers = try(
-    var.variables.permissions.developers != null ? var.variables.permissions.developers : [], []
+    var.resources.permissions.developers != null ? var.resources.permissions.developers : [], []
   )
 
   statusviewers = try(
-    var.variables.permissions.statusviewers != null ? var.variables.permissions.statusviewers : [], []
+    var.resources.permissions.statusviewers != null ? var.resources.permissions.statusviewers : [], []
   )
 
   externals = try(
-    var.variables.permissions.externals != null ? var.variables.permissions.externals : [], []
+    var.resources.permissions.externals != null ? var.resources.permissions.externals : [], []
   )
 
   dataviewers = try(
-    var.variables.permissions.dataviewers != null ? var.variables.permissions.dataviewers : [], []
+    var.resources.permissions.dataviewers != null ? var.resources.permissions.dataviewers : [], []
   )
 
   # DNS
 
   dnsZones = try(
-    var.variables.dnsZones != null
-    ? var.variables.dnsZones
+    var.resources.dnsZones != null
+    ? var.resources.dnsZones
     : [],
     []
   )
@@ -97,13 +97,13 @@ locals {
 
   # Network
 
-  network = try(var.variables.network, null)
+  network = try(var.resources.network, null)
 
   # Alerts
 
   origAlerts = try(
-    var.variables.alerts != null
-    ? var.variables.alerts
+    var.resources.alerts != null
+    ? var.resources.alerts
     : [],
     []
   )
@@ -130,7 +130,7 @@ locals {
 
   # Kubernetes
 
-  kubernetes = try(var.variables.kubernetes, null)
+  kubernetes = try(var.resources.kubernetes, null)
 
   nodePools = try(
     local.kubernetes.nodePools != null
@@ -151,15 +151,15 @@ locals {
   # Databases
 
   postgresClusters = try(
-    var.variables.postgresClusters != null
-    ? var.variables.postgresClusters
+    var.resources.postgresClusters != null
+    ? var.resources.postgresClusters
     : [],
     []
   )
 
   mysqlClusters = try(
-    var.variables.mysqlClusters != null
-    ? var.variables.mysqlClusters
+    var.resources.mysqlClusters != null
+    ? var.resources.mysqlClusters
     : [],
     []
   )
@@ -185,8 +185,8 @@ locals {
   # Storage buckets
 
   storageBuckets = try(
-    var.variables.storageBuckets != null
-    ? var.variables.storageBuckets
+    var.resources.storageBuckets != null
+    ? var.resources.storageBuckets
     : [],
     []
   )

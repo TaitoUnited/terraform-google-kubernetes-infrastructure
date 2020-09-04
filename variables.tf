@@ -77,9 +77,9 @@ variable "email" {
   description = "Email address for DevOps support."
 }
 
-# Additional variables as a json/yaml
+# Resources as a json/yaml
 
-variable "variables" {
-  type    = any
-  description = "Ingress and services as json/yaml. See README.md for format."
+variable "resources" {
+  type        = any
+  description = "Resources as JSON (see README.md). You can read values from a YAML file with yamldecode()."
 }

@@ -4,7 +4,39 @@ Kubernetes infrastructure module designed to get you up and running in no time. 
 
 This module is used by [infrastructure templates](https://taitounited.github.io/taito-cli/templates#infrastructure-templates) of [Taito CLI](https://taitounited.github.io/taito-cli/). See the [gcp template](https://github.com/TaitoUnited/taito-templates/tree/master/infrastructure/gcp/terraform) as an example on how to use this module.
 
-Example YAML for variables:
+Example usage:
+
+```
+module "my_zone" {
+  source                     = "TaitoUnited/kubernetes-infrastructure/google"
+  version                    = "2.0.0"
+
+  # Labeling
+  name                       = "my-zone"
+
+  # Google Provider
+  project_id                 = "my-gcp-project"
+  region                     = "europe-west1"
+  zone                       = "europe-west1-b"
+
+  # Helm
+  # NOTE: On the first run helm_enabled should be set to false,
+  # since Kubernetes cluster does not exist yet.
+  helm_enabled               = false
+
+  # Settings
+  enable_google_services     = true
+  cicd_cloud_deploy_enabled  = true
+  cicd_testing_enabled       = true
+  database_proxy_enabled     = true
+  email                      = "devops@mydomain.com"
+
+  # Resources
+  resources                  = yamldecode(file("${path.root}/../my-zone.yaml"))
+}
+```
+
+Example YAML for resources:
 
 ```
 #--------------------------------------------------------------------
