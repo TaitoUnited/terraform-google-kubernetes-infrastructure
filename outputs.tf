@@ -24,6 +24,16 @@ output "mysql_private_ip_addresses" {
   value = google_sql_database_instance.mysql.*.private_ip_address
 }
 
+output "network_name" {
+  description = "Network name"
+  value = module.network.*.network_name
+}
+
+output "network_subnet_names" {
+  description = "Network subnet names"
+  value = module.network.*.subnets_names[*]
+}
+
 /* TODO: not working anymore
 output "logs_writer_identity" {
   description = "TODO"
