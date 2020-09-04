@@ -172,6 +172,7 @@ kubernetes:
         enable-real-ip: false
         enable-opentracing: false
         whitelist-source-range:
+        # Block malicious IPs. See https://www.projecthoneypot.org/list_of_ips.php
         block-cidrs:
         block-user-agents:
         block-referers:
