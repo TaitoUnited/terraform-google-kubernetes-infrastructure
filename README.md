@@ -131,8 +131,6 @@ kubernetes:
   binaryAuthorizationEnabled: false
   intranodeVisibilityEnabled: false
   configConnectorEnabled: false
-  istioEnabled: false
-  cloudrunEnabled: false
   # zones: # NOTE: Provide zones only if kubernes is ZONAL instead of REGIONAL
   masterAuthorizedNetworks:
     - 0.0.0.0/0

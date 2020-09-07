@@ -15,7 +15,7 @@
  */
 
 resource "helm_release" "postgres_proxy" {
-  depends_on = [module.kubernetes, helm_release.letsencrypt_issuer]
+  depends_on = [module.kubernetes, module.helm_apps]
 
   count      = local.helmEnabled ? length(local.postgresClusters) : 0
   name       = local.postgresClusters[count.index].name
