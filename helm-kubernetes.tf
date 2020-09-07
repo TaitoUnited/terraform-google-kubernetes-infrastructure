@@ -30,12 +30,12 @@ resource "helm_release" "kubernetes" {
 
   set {
     name     = "dbProxyAccessors"
-    value    = concat(local.viewers, local.statusviewers, local.externals)
+    value    = concat(local.viewers, local.statusViewers, local.limitedDevelopers)
   }
 
   set {
     name     = "globalStatusViewers"
-    value    = concat(local.viewers, local.statusviewers)
+    value    = concat(local.viewers, local.statusViewers)
   }
 
 }

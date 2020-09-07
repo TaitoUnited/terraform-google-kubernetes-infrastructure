@@ -84,8 +84,8 @@ module "kubernetes" {
   monitoring_service              = "monitoring.googleapis.com/kubernetes"
 
   config_connector                = local.kubernetes.configConnectorEnabled
-  istio                           = local.kubernetes.istioEnabled
-  cloudrun                        = local.kubernetes.cloudrunEnabled
+  istio                           = local.kubernetes.istio.enabled
+  cloudrun                        = local.kubernetes.knative.enabled
 
   # Enable G Suite groups for access control
   authenticator_security_group    = local.kubernetes.authenticatorSecurityGroup

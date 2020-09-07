@@ -66,16 +66,16 @@ locals {
     var.resources.permissions.developers != null ? var.resources.permissions.developers : [], []
   )
 
-  statusviewers = try(
-    var.resources.permissions.statusviewers != null ? var.resources.permissions.statusviewers : [], []
+  statusViewers = try(
+    var.resources.permissions.statusViewers != null ? var.resources.permissions.statusViewers : [], []
   )
 
-  externals = try(
-    var.resources.permissions.externals != null ? var.resources.permissions.externals : [], []
+  limitedDevelopers = try(
+    var.resources.permissions.limitedDevelopers != null ? var.resources.permissions.limitedDevelopers : [], []
   )
 
-  dataviewers = try(
-    var.resources.permissions.dataviewers != null ? var.resources.permissions.dataviewers : [], []
+  limitedDataViewers = try(
+    var.resources.permissions.limitedDataViewers != null ? var.resources.permissions.limitedDataViewers : [], []
   )
 
   # DNS

@@ -72,8 +72,8 @@ resource "google_project_iam_binding" "container_cluster_viewer" {
   role       = "roles/container.clusterViewer"
   members = concat(
     local.viewers,
-    local.statusviewers,
-    local.externals,
+    local.statusViewers,
+    local.limitedDevelopers,
   )
 }
 
@@ -82,10 +82,10 @@ resource "google_project_iam_binding" "cloudsql_client" {
   role       = "roles/cloudsql.client"
   members = concat(
     local.viewers,
-    local.statusviewers,
-    local.dataviewers,
+    local.statusViewers,
+    local.limitedDataViewers,
     local.developers,
-    local.externals,
+    local.limitedDevelopers,
 
     var.database_proxy_enabled ? [
       "serviceAccount:${google_service_account.database_proxy[0].email}"
@@ -112,7 +112,7 @@ resource "google_project_iam_binding" "cloudbuild_builds_editor" {
 resource "google_project_iam_binding" "cloudbuild_builds_viewer" {
   depends_on = [google_project_service.compute]
   role       = "roles/cloudbuild.builds.viewer"
-  members    = local.statusviewers
+  members    = local.statusViewers
 }
 
 resource "google_project_iam_binding" "errorreporting_user" {
@@ -136,5 +136,5 @@ resource "google_project_iam_binding" "monitoring_editor" {
 resource "google_project_iam_binding" "monitoring_viewer" {
   depends_on = [google_project_service.compute]
   role       = "roles/monitoring.viewer"
-  members    = local.statusviewers
+  members    = local.statusViewers
 }

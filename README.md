@@ -1,8 +1,6 @@
 # Kubernetes infrastructure for Google Cloud
 
-Kubernetes infrastructure module designed to get you up and running in no time. Provides all the necessary components for running your projects: Kubernetes, NGINX ingress, cert-manager, container registry, databases, database proxies, networking, monitoring, and permissions. Use it either as a module, or as an example for your own customized infrastructure. Contributions are welcome!
-
-This module is used by [infrastructure templates](https://taitounited.github.io/taito-cli/templates#infrastructure-templates) of [Taito CLI](https://taitounited.github.io/taito-cli/). See the [gcp template](https://github.com/TaitoUnited/taito-templates/tree/master/infrastructure/gcp/terraform) as an example on how to use this module.
+Kubernetes based cloud-native infrastructure module designed to get you up and running in no time. You can use it either as a module, or as an example for your own customized infrastructure. The module provides all the necessary components for running your projects: Kubernetes, container registry, database clusters, database proxies, networking, monitoring, and IAM. Optionally you can install also additional infrastructure components like [NGINX ingress](https://kubernetes.github.io/ingress-nginx/), [cert-manager](https://cert-manager.io/), [Falco](https://falco.org/), [Jaeger](https://www.jaegertracing.io/), [Sentry](https://sentry.io/welcome/), [Jenkins X](https://jenkins-x.io/), [Istio](https://istio.io/), [Knative (Cloud Run)](https://knative.dev/), and [Kafka](https://kafka.apache.org/)
 
 Example usage:
 
@@ -20,8 +18,9 @@ module "my_zone" {
   zone                       = "europe-west1-b"
 
   # Helm
-  # NOTE: On the first run helm_enabled should be set to false,
-  # since Kubernetes cluster does not exist yet.
+  # NOTE: On the first run helm_enabled should be set to false. You can turn
+  # helm_enabled to true once the Kubenetes cluster exists and you have
+  # authenticated to it.
   helm_enabled               = false
 
   # Settings
@@ -48,13 +47,13 @@ permissions:
     - user:john.owner@mydomain.com
   viewers:
     - user:john.viewer@mydomain.com
-  statusviewers:
+  statusViewers:
     - user:john.statusviewer@mydomain.com
-  dataviewers:
-    - user:jane.external@anotherdomain.com
   developers:
     - user:john.developer@mydomain.com
-  externals:
+  limitedDevelopers:
+    - user:jane.external@anotherdomain.com
+  limitedDataViewers:
     - user:jane.external@anotherdomain.com
 
 #--------------------------------------------------------------------
@@ -158,6 +157,7 @@ kubernetes:
       # NOTE: On Google Cloud total number of nodes = node_count * num_of_zones
       minNodeCount: 1
       maxNodeCount: 1
+  # Ingress controllers
   nginxIngressControllers:
     - class: nginx
       replicas: 3
@@ -181,15 +181,27 @@ kubernetes:
         3000: my-namespace/my-tcp-service:9000
       udpServices:
         3001: my-namespace/my-udp-service:9001
-  # TODO: Kafka, Jaeger, Jenkins X, and Tekton installation not supported yet
-  kafka:
+  # Certificate managers
+  certManager:
     enabled: false
+  # Platforms
+  istio:
+    enabled: false
+  knative:         # Using Google Cloud Run
+    enabled: false
+  # Logging, monitoring, and tracing
+  falco:
+    enabled: false # NOTE: Not supported yet
   jaeger:
-    enabled: false
+    enabled: false # NOTE: Not supported yet
+  sentry:
+    enabled: false # NOTE: Not supported yet
+  # CI/CD
   jenkinsx:
-    enabled: false
-  tekton:
-    enabled: false
+    enabled: false # NOTE: Not supported yet
+  # Event handling
+  kafka:
+    enabled: false # NOTE: Not supported yet
 
 #--------------------------------------------------------------------
 # Databases
@@ -271,3 +283,16 @@ storageBuckets:
     transitionRetainDays: 90
     transitionStorageClass: ARCHIVE
 ```
+
+Similar YAML format is used also by the following modules:
+
+- [Kubernetes infrastructure for AWS](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/aws)
+- [Kubernetes infrastructure for Azure](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/azurerm)
+- [Kubernetes infrastructure for Google](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/google)
+- [Kubernetes infrastructure for DigitalOcean](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/digitalocean)
+
+These modules are used by [infrastructure templates](https://taitounited.github.io/taito-cli/templates#infrastructure-templates) of [Taito CLI](https://taitounited.github.io/taito-cli/).
+
+TIP: See also [Full Stack Helm Chart](https://github.com/TaitoUnited/taito-charts/blob/master/full-stack) and [Google Cloud project resources](https://registry.terraform.io/modules/TaitoUnited/project-resources/google).
+
+Contributions are welcome!
