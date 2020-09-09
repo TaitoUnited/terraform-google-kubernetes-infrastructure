@@ -20,21 +20,19 @@ resource "helm_release" "postgres_proxy" {
   count      = local.helmEnabled ? length(local.postgresClusters) : 0
   name       = local.postgresClusters[count.index].name
   namespace  = "db-proxy"
-  chart      = "${path.module}/sql-proxy"
+  repository = "https://kubernetes-charts.storage.googleapis.com/"
+  chart      = "socat-tunneller"
+  version    = local.socat_tunneler_version
+  wait       = false
 
   set {
-    name     = "dbInstance"
-    value    = "${var.name}:${var.region}:${local.postgresClusters[count.index].name}"
+    name  = "tunnel.host"
+    value = google_sql_database_instance.postgres[count.index].private_ip_address
   }
 
   set {
-    name     = "dbPort"
-    value    = "5432"
-  }
-
-  set {
-    name     = "podSecurityPolicyEnabled"
-    value    = local.kubernetes.podSecurityPolicyEnabled
+    name  = "tunnel.port"
+    value = 5432
   }
 }
 
@@ -44,20 +42,18 @@ resource "helm_release" "mysql_proxy" {
   count      = local.helmEnabled ? length(local.mysqlClusters) : 0
   name       = local.mysqlClusters[count.index].name
   namespace  = "db-proxy"
-  chart      = "${path.module}/sql-proxy"
+  repository = "https://kubernetes-charts.storage.googleapis.com/"
+  chart      = "socat-tunneller"
+  version    = local.socat_tunneler_version
+  wait       = false
 
   set {
-    name     = "dbInstance"
-    value    = "${var.name}:${var.region}:${local.mysqlClusters[count.index].name}"
+    name  = "tunnel.host"
+    value = google_sql_database_instance.mysql[count.index].private_ip_address
   }
 
   set {
-    name     = "dbPort"
-    value    = "3306"
-  }
-
-  set {
-    name     = "podSecurityPolicyEnabled"
-    value    = local.kubernetes.podSecurityPolicyEnabled
+    name  = "tunnel.port"
+    value = 3306
   }
 }

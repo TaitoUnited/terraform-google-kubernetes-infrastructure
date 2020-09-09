@@ -1,6 +1,0 @@
-version: 1.16
-replicas: 1
-dbInstance: taito_zone:taito_provider_region:postgres_instance
-dbPort: 5432
-secret: database-proxy-serviceaccount.key
-podSecurityPolicyEnabled: false

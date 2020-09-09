@@ -19,7 +19,7 @@ module "helm_apps" {
   version                     = "1.1.1"
 
   depends_on                  = [module.kubernetes]
-  count                       = var.helm_enabled ? 1 : 0
+  count                       = local.helmEnabled ? 1 : 0
   providers = {
     helm = helm
   }
