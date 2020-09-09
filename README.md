@@ -1,6 +1,6 @@
 # Kubernetes infrastructure for Google Cloud
 
-Kubernetes based cloud-native infrastructure module designed to get you up and running in no time. You can use it either as a module, or as an example for your own customized infrastructure. The module provides all the necessary components for running your projects: Kubernetes, container registry, database clusters, database proxies, networking, monitoring, and IAM. Optionally you can install also additional infrastructure components like [NGINX ingress](https://kubernetes.github.io/ingress-nginx/), [cert-manager](https://cert-manager.io/), [Falco](https://falco.org/), [Jaeger](https://www.jaegertracing.io/), [Sentry](https://sentry.io/welcome/), [Jenkins X](https://jenkins-x.io/), [Istio](https://istio.io/), [Knative (Cloud Run)](https://knative.dev/), and [Kafka](https://kafka.apache.org/)
+Kubernetes based cloud-native infrastructure module designed to get you up and running in no time. You can use it either as a module, or as an example for your own customized infrastructure. The module provides all the necessary components for running your projects: Kubernetes, container registry, database clusters, database proxies, networking, monitoring, and IAM. Optionally you can install also additional infrastructure components like [NGINX ingress](https://kubernetes.github.io/ingress-nginx/), [cert-manager](https://cert-manager.io/), [Falco](https://falco.org/), [Jaeger](https://www.jaegertracing.io/), [Sentry](https://sentry.io/welcome/), [Jenkins X](https://jenkins-x.io/), [Istio](https://istio.io/), and [Knative (Cloud Run)](https://knative.dev/).
 
 Example usage:
 
@@ -197,9 +197,6 @@ kubernetes:
   # CI/CD
   jenkinsx:
     enabled: false # NOTE: Not supported yet
-  # Event handling
-  kafka:
-    enabled: false # NOTE: Not supported yet
 
 #--------------------------------------------------------------------
 # Databases
@@ -282,15 +279,15 @@ storageBuckets:
     transitionStorageClass: ARCHIVE
 ```
 
-Similar YAML format is used also by the following modules:
+Similar YAML format is used by the following modules:
 
 - [Kubernetes infrastructure for AWS](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/aws)
 - [Kubernetes infrastructure for Azure](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/azurerm)
 - [Kubernetes infrastructure for Google](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/google)
 - [Kubernetes infrastructure for DigitalOcean](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/digitalocean)
 
-These modules are used by [infrastructure templates](https://taitounited.github.io/taito-cli/templates#infrastructure-templates) of [Taito CLI](https://taitounited.github.io/taito-cli/).
+The aforementioned modules are used by [infrastructure templates](https://taitounited.github.io/taito-cli/templates#infrastructure-templates) of [Taito CLI](https://taitounited.github.io/taito-cli/).
 
-TIP: See also [Full Stack Helm Chart](https://github.com/TaitoUnited/taito-charts/blob/master/full-stack) and [Google Cloud project resources](https://registry.terraform.io/modules/TaitoUnited/project-resources/google).
+TIP: See also [Google Cloud project resources](https://registry.terraform.io/modules/TaitoUnited/project-resources/google), [Full Stack Helm Chart](https://github.com/TaitoUnited/taito-charts/blob/master/full-stack), and [full-stack-template](https://github.com/TaitoUnited/full-stack-template).
 
 Contributions are welcome!
