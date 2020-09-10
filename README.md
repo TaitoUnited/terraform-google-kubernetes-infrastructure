@@ -28,6 +28,7 @@ module "my_zone" {
   cicd_cloud_deploy_enabled  = true
   cicd_testing_enabled       = true
   database_proxy_enabled     = true
+  create_database_users      = true
   email                      = "devops@mydomain.com"
 
   # Resources
@@ -219,6 +220,9 @@ postgresClusters:
     adminUsername: admin
     # NOTE: All postgres users can see each other usernames. Use scrambled
     # usernames if this is a problem.
+    # WARNING: Users created using Cloud SQL have the privileges associated
+    # with the cloudsqlsuperuser role: CREATEROLE, CREATEDB, and LOGIN.
+    # See https://cloud.google.com/sql/docs/postgres/users
     users:
       - username: john.doe
 
@@ -235,6 +239,8 @@ mysqlClusters:
     authorizedNetworks:
       - 127.127.127.127/32
     adminUsername: admin
+    # WARNING: Users created using Cloud SQL have the same privileges as the
+    # root user. See https://cloud.google.com/sql/docs/mysql/users
     users:
       - username: john.doe
 

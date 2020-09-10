@@ -72,6 +72,12 @@ variable "database_proxy_enabled" {
   description = "If true, database proxy service account is created and given necessary permissions for db access."
 }
 
+variable "create_database_users" {
+  type        = bool
+  default     = true
+  description = "If true, database users are managed by this module. You might want to set this to false, if you use some other module to manage your database users."
+}
+
 variable "email" {
   type = string
   description = "Email address for DevOps support."

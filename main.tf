@@ -42,15 +42,16 @@ data "google_project" "zone" {
 }
 
 locals {
-  nginx_ingress_version      = "2.12.1"
-  cert_manager_version       = "1.0.0-beta.0"
+  nginx_ingress_version    = "2.12.1"
+  cert_manager_version     = "1.0.0-beta.0"
+  socat_tunneler_version   = "0.1.0"
 
-  network_name           = "${var.name}-network"
-  subnet_name            = "${var.name}-subnet"
-  master_auth_subnetwork = "${var.name}-master-subnet"
-  pods_range_name        = "${var.name}-ip-range-pods"
-  svc_range_name         = "${var.name}-ip-range-svc"
-  kubernetes_master_cidr = "172.16.0.0/28"
+  network_name             = "${var.name}-network"
+  subnet_name              = "${var.name}-subnet"
+  master_auth_subnetwork   = "${var.name}-master-subnet"
+  pods_range_name          = "${var.name}-ip-range-pods"
+  svc_range_name           = "${var.name}-ip-range-svc"
+  kubernetes_master_cidr   = "172.16.0.0/28"
 
   # Users
 
@@ -164,7 +165,7 @@ locals {
     []
   )
 
-  postgresUsers = flatten([
+  postgresUsers = var.create_database_users == false ? [] : flatten([
     for postgres in keys(local.postgresClusters) : [
       for user in postgres.users : {
         postgresName = postgres.name
@@ -173,7 +174,7 @@ locals {
     ]
   ])
 
-  mysqlUsers = flatten([
+  mysqlUsers = var.create_database_users == false ? [] : flatten([
     for mysql in keys(local.mysqlClusters) : [
       for user in mysql.users : {
         mysqlName = mysql.name
