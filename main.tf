@@ -56,27 +56,33 @@ locals {
   # Users
 
   owners = try(
-    var.resources.permissions.owners != null ? var.resources.permissions.owners : [], []
+    var.resources.zone.owners != null ? var.resources.zone.owners : [], []
   )
 
   viewers = try(
-    var.resources.permissions.viewers != null ? var.resources.permissions.viewers : [], []
+    var.resources.zone.viewers != null ? var.resources.zone.viewers : [], []
   )
 
   developers = try(
-    var.resources.permissions.developers != null ? var.resources.permissions.developers : [], []
+    var.resources.zone.developers != null ? var.resources.zone.developers : [], []
   )
 
   statusViewers = try(
-    var.resources.permissions.statusViewers != null ? var.resources.permissions.statusViewers : [], []
+    var.resources.zone.statusViewers != null ? var.resources.zone.statusViewers : [], []
   )
 
   limitedDevelopers = try(
-    var.resources.permissions.limitedDevelopers != null ? var.resources.permissions.limitedDevelopers : [], []
+    var.resources.zone.limitedDevelopers != null ? var.resources.zone.limitedDevelopers : [], []
   )
 
   limitedDataViewers = try(
-    var.resources.permissions.limitedDataViewers != null ? var.resources.permissions.limitedDataViewers : [], []
+    var.resources.zone.limitedDataViewers != null ? var.resources.zone.limitedDataViewers : [], []
+  )
+
+  # Namespaces
+
+  namespaces = try(
+    var.resources.namespaces != null ? var.resources.namespaces : [], []
   )
 
   # DNS

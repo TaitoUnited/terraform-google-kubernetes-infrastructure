@@ -43,7 +43,7 @@ Example YAML for resources:
 # Permissions
 #--------------------------------------------------------------------
 
-permissions:
+zone:
   owners:
     - user:john.owner@mydomain.com
   viewers:
@@ -56,6 +56,33 @@ permissions:
     - user:jane.external@anotherdomain.com
   limitedDataViewers:
     - user:jane.external@anotherdomain.com
+
+namespaces:
+  my-namespace:
+    statusViewers:
+      - user:jane.external@anotherdomain.com
+  another-namespace:
+    developers:
+      - user:jane.external@anotherdomain.com
+
+# NOTE: All postgres users can see each other usernames. Use scrambled
+# usernames if this is a problem.
+# WARNING: Users created using Cloud SQL have the privileges associated
+# with the cloudsqlsuperuser role: CREATEROLE, CREATEDB, and LOGIN.
+# See https://cloud.google.com/sql/docs/postgres/users
+databases:
+  zone1-common-postgres:
+    users:
+      - username: john.doe
+        view: [ "my-database" ]
+        edit: [ "another-database" ]
+        custom: [ "third-database" ]
+  zone1-common-mysql:
+    users:
+      - username: john.doe
+        view: [ "my-database" ]
+        edit: [ "another-database" ]
+# --> TODO: Move these to another module
 
 #--------------------------------------------------------------------
 # DNS
@@ -218,13 +245,6 @@ postgresClusters:
     flags:
       log_min_duration_statement: 1000
     adminUsername: admin
-    # NOTE: All postgres users can see each other usernames. Use scrambled
-    # usernames if this is a problem.
-    # WARNING: Users created using Cloud SQL have the privileges associated
-    # with the cloudsqlsuperuser role: CREATEROLE, CREATEDB, and LOGIN.
-    # See https://cloud.google.com/sql/docs/postgres/users
-    users:
-      - username: john.doe
 
 mysqlClusters:
   - name: zone1-common-mysql
@@ -239,10 +259,6 @@ mysqlClusters:
     authorizedNetworks:
       - 127.127.127.127/32
     adminUsername: admin
-    # WARNING: Users created using Cloud SQL have the same privileges as the
-    # root user. See https://cloud.google.com/sql/docs/mysql/users
-    users:
-      - username: john.doe
 
 #--------------------------------------------------------------------
 # Storage buckets

@@ -38,4 +38,9 @@ resource "helm_release" "kubernetes" {
     value    = concat(local.viewers, local.statusViewers)
   }
 
+  set {
+    name     = "namespaces"
+    value    = local.namespaces
+  }
+
 }
