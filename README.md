@@ -28,7 +28,6 @@ module "my_zone" {
   cicd_cloud_deploy_enabled  = true
   cicd_testing_enabled       = true
   database_proxy_enabled     = true
-  create_database_users      = true # TODO: remove
   email                      = "devops@mydomain.com"
 
   # Resources
@@ -73,12 +72,10 @@ permissions:
         'taito:developer':
           - user:jane.external@anotherdomain.com
 
-  # --> TODO: Move these to another module
-  # NOTE: All postgres users can see each other usernames. Use scrambled
-  # usernames if this is a problem.
-  # WARNING: Users created using Cloud SQL have the privileges associated
-  # with the cloudsqlsuperuser role: CREATEROLE, CREATEDB, and LOGIN.
-  # See https://cloud.google.com/sql/docs/postgres/users
+  # NOTE: Database permissions are provided by Terraform modules
+  # TODO and TODO.
+  # NOTE: All postgres users can see each other usernames by default.
+  # Use scrambled usernames if this is a problem.
   databases:
     zone1-common-postgres:
       users:
@@ -309,7 +306,7 @@ storageBuckets:
     transitionStorageClass: ARCHIVE
 ```
 
-Similar YAML format is used by the following modules:
+Similar YAML format is supported by the following modules:
 
 - [Kubernetes infrastructure for AWS](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/aws)
 - [Kubernetes infrastructure for Azure](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/azurerm)
