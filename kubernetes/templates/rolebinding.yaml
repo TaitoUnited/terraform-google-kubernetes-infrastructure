@@ -1,39 +1,12 @@
-{{- $root := . -}}
-
-{{- if .Values.dbProxyAccessors }}
+{{- range $namespace := .Values.permissions.namespaces }}
+{{- range $role, $users := .Values.permissions.cluster }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: access-db-proxy
-  namespace: {{ .Values.dbProxyNamespace }}
-subjects:
-{{- range $name := .Values.dbProxyAccessors }}
-{{- if or (eq split(",", $name)[0] "domain") }}
-- kind: Group
-  name: allusers@split(",", $name)[1]
-{{- else if or (eq split(",", $name)[0] "group") }}
-- kind: Group
-  name: split(",", $name)[1]
-{{- else }}
-- kind: User
-  name: split(",", $name)[1]
-{{- end }}
-{{- end }}
-roleRef:
-  kind: ClusterRole
-  name: pod-portforwarder
-  apiGroup: rbac.authorization.k8s.io
----
-{{- end }}
-
-{{- range $namespace := .Values.namespaces }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: developers
+  name: {{ $role }}
   namespace: {{ $namespace }}
 subjects:
-{{- range $name := $namespace.developers }}
+{{- range $name := $users }}
 {{- if or (eq split(",", $name)[0] "domain") }}
 - kind: Group
   name: allusers@split(",", $name)[1]
@@ -47,30 +20,8 @@ subjects:
 {{- end }}
 roleRef:
   kind: ClusterRole
-  name: developer
+  name: {{ $role }}
   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: status-viewers
-  namespace: {{ $namespace }}
-subjects:
-{{- range $name := $namespace.statusViewers }}
-{{- if or (eq split(",", $name)[0] "domain") }}
-- kind: Group
-  name: allusers@split(",", $name)[1]
-{{- else if or (eq split(",", $name)[0] "group") }}
-- kind: Group
-  name: split(",", $name)[1]
-{{- else }}
-- kind: User
-  name: split(",", $name)[1]
 {{- end }}
-{{- end }}
-roleRef:
-  kind: ClusterRole
-  name: status-viewer
-  apiGroup: rbac.authorization.k8s.io
----
 {{- end }}

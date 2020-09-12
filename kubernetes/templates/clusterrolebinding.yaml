@@ -1,10 +1,10 @@
-{{- if .Values.globalStatusViewers }}
+{{- range $role, $users := .Values.permissions.cluster }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: view-status-global
+  name: $role
 subjects:
-{{- range $name := .Values.globalStatusViewers }}
+{{- range $name := $users }}
 {{- if or (eq split(",", $name)[0] "domain") }}
 - kind: Group
   name: allusers@split(",", $name)[1]
@@ -18,6 +18,7 @@ subjects:
 {{- end }}
 roleRef:
   kind: ClusterRole
-  name: status-viewer
+  name: $role
   apiGroup: rbac.authorization.k8s.io
+---
 {{- end }}

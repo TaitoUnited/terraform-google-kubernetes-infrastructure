@@ -28,7 +28,7 @@ module "my_zone" {
   cicd_cloud_deploy_enabled  = true
   cicd_testing_enabled       = true
   database_proxy_enabled     = true
-  create_database_users      = true
+  create_database_users      = true # TODO: remove
   email                      = "devops@mydomain.com"
 
   # Resources
@@ -43,46 +43,54 @@ Example YAML for resources:
 # Permissions
 #--------------------------------------------------------------------
 
-zone:
-  owners:
-    - user:john.owner@mydomain.com
-  viewers:
-    - user:john.viewer@mydomain.com
-  statusViewers:
-    - user:john.statusviewer@mydomain.com
-  developers:
-    - user:john.developer@mydomain.com
-  limitedDevelopers:
-    - user:jane.external@anotherdomain.com
-  limitedDataViewers:
-    - user:jane.external@anotherdomain.com
-
-namespaces:
-  my-namespace:
+permissions:
+  zone:
+    owners:
+      - user:john.owner@mydomain.com
+    viewers:
+      - user:john.viewer@mydomain.com
     statusViewers:
-      - user:jane.external@anotherdomain.com
-  another-namespace:
+      - user:john.statusviewer@mydomain.com
     developers:
+      - user:john.developer@mydomain.com
+    limitedDevelopers:
+      - user:jane.external@anotherdomain.com
+    limitedDataViewers:
       - user:jane.external@anotherdomain.com
 
-# NOTE: All postgres users can see each other usernames. Use scrambled
-# usernames if this is a problem.
-# WARNING: Users created using Cloud SQL have the privileges associated
-# with the cloudsqlsuperuser role: CREATEROLE, CREATEDB, and LOGIN.
-# See https://cloud.google.com/sql/docs/postgres/users
-databases:
-  zone1-common-postgres:
-    users:
-      - username: john.doe
-        view: [ "my-database" ]
-        edit: [ "another-database" ]
-        custom: [ "third-database" ]
-  zone1-common-mysql:
-    users:
-      - username: john.doe
-        view: [ "my-database" ]
-        edit: [ "another-database" ]
-# --> TODO: Move these to another module
+  kubernetes:
+    cluster:
+      'taito:status-viewer':
+        - user:jane.statusviewer@anotherdomain.com
+    namespaces:
+      db-proxy:
+        'taito:pod-portforwarder':
+          - user:jane.external@anotherdomain.com
+      my-namespace:
+        'taito:status-viewer':
+          - user:jane.external@anotherdomain.com
+      another-namespace:
+        'taito:developer':
+          - user:jane.external@anotherdomain.com
+
+  # --> TODO: Move these to another module
+  # NOTE: All postgres users can see each other usernames. Use scrambled
+  # usernames if this is a problem.
+  # WARNING: Users created using Cloud SQL have the privileges associated
+  # with the cloudsqlsuperuser role: CREATEROLE, CREATEDB, and LOGIN.
+  # See https://cloud.google.com/sql/docs/postgres/users
+  databases:
+    zone1-common-postgres:
+      users:
+        - username: john.doe
+          view: [ "my-database" ]
+          edit: [ "another-database" ]
+          custom: [ "third-database" ]
+    zone1-common-mysql:
+      users:
+        - username: john.doe
+          view: [ "my-database" ]
+          edit: [ "another-database" ]
 
 #--------------------------------------------------------------------
 # DNS

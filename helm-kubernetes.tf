@@ -24,23 +24,8 @@ resource "helm_release" "kubernetes" {
   chart      = "${path.module}/kubernetes"
 
   set {
-    name     = "dbProxyNamespace"
-    value    = "db-proxy"
-  }
-
-  set {
-    name     = "dbProxyAccessors"
-    value    = concat(local.viewers, local.statusViewers, local.limitedDevelopers)
-  }
-
-  set {
-    name     = "globalStatusViewers"
-    value    = concat(local.viewers, local.statusViewers)
-  }
-
-  set {
-    name     = "namespaces"
-    value    = local.namespaces
+    name     = "permissions"
+    value    = local.permissions.kubernetes
   }
 
 }

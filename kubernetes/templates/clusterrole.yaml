@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: status-viewer
+  name: taito:status-viewer
   labels:
     taito.dev/aggregate-to-developers: "true"
 rules:
@@ -18,7 +18,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: secret-viewer
+  name: taito:secret-viewer
   labels:
     taito.dev/aggregate-to-developers: "true"
 rules:
@@ -29,7 +29,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: pod-killer
+  name: taito:pod-killer
   labels:
     taito.dev/aggregate-to-developers: "true"
 rules:
@@ -40,7 +40,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: pod-executer
+  name: taito:pod-executer
   labels:
     taito.dev/aggregate-to-developers: "true"
 rules:
@@ -51,7 +51,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: pod-portforwarder
+  name: taito:pod-portforwarder
   labels:
     taito.dev/aggregate-to-developers: "true"
 rules:
@@ -62,7 +62,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: deployer
+  name: taito:deployer
   labels:
     taito.dev/aggregate-to-developers: "true"
 rules:
@@ -76,7 +76,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: developer
+  name: taito:developer
 aggregationRule:
   clusterRoleSelectors:
   - matchLabels:

@@ -39,20 +39,20 @@ resource "google_kms_key_ring_iam_member" "kms_decrypter" {
 resource "google_project_iam_binding" "owner" {
   depends_on = [google_project_service.compute]
   role       = "roles/owner"
-  members    = local.owners
+  members    = local.permissions.zone.owners
 }
 
 resource "google_project_iam_binding" "viewer" {
   depends_on = [google_project_service.compute]
   role       = "roles/viewer"
-  members    = local.viewers
+  members    = local.permissions.zone.viewers
 }
 
 resource "google_project_iam_binding" "container_developer" {
   depends_on = [null_resource.service_wait, google_service_account.cicd_tester]
   role       = "roles/container.developer"
   members = concat(
-    local.developers,
+    local.permissions.zone.developers,
 
     var.cicd_cloud_deploy_enabled ? [
       # TODO: Give cloudbuild only such permissions it really requires.
@@ -71,9 +71,9 @@ resource "google_project_iam_binding" "container_cluster_viewer" {
   depends_on = [null_resource.service_wait]
   role       = "roles/container.clusterViewer"
   members = concat(
-    local.viewers,
-    local.statusViewers,
-    local.limitedDevelopers,
+    local.permissions.zone.viewers,
+    local.permissions.zone.statusViewers,
+    local.permissions.zone.limitedDevelopers,
   )
 }
 
@@ -81,11 +81,11 @@ resource "google_project_iam_binding" "cloudsql_client" {
   depends_on = [google_project_service.compute, google_service_account.database_proxy]
   role       = "roles/cloudsql.client"
   members = concat(
-    local.viewers,
-    local.statusViewers,
-    local.limitedDataViewers,
-    local.developers,
-    local.limitedDevelopers,
+    local.permissions.zone.viewers,
+    local.permissions.zone.statusViewers,
+    local.permissions.zone.limitedDataViewers,
+    local.permissions.zone.developers,
+    local.permissions.zone.limitedDevelopers,
 
     var.database_proxy_enabled ? [
       "serviceAccount:${google_service_account.database_proxy[0].email}"
@@ -100,41 +100,41 @@ resource "google_project_iam_binding" "cloudsql_client" {
 resource "google_project_iam_binding" "serviceusage_consumer" {
   depends_on = [google_project_service.compute]
   role       = "roles/serviceusage.serviceUsageConsumer"
-  members    = local.developers
+  members    = local.permissions.zone.developers
 }
 
 resource "google_project_iam_binding" "cloudbuild_builds_editor" {
   depends_on = [google_project_service.compute]
   role       = "roles/cloudbuild.builds.editor"
-  members    = local.developers
+  members    = local.permissions.zone.developers
 }
 
 resource "google_project_iam_binding" "cloudbuild_builds_viewer" {
   depends_on = [google_project_service.compute]
   role       = "roles/cloudbuild.builds.viewer"
-  members    = local.statusViewers
+  members    = local.permissions.zone.statusViewers
 }
 
 resource "google_project_iam_binding" "errorreporting_user" {
   depends_on = [google_project_service.compute]
   role       = "roles/errorreporting.user"
-  members    = local.developers
+  members    = local.permissions.zone.developers
 }
 
 resource "google_project_iam_binding" "source_admin" {
   depends_on = [google_project_service.compute]
   role       = "roles/source.admin"
-  members    = local.developers
+  members    = local.permissions.zone.developers
 }
 
 resource "google_project_iam_binding" "monitoring_editor" {
   depends_on = [google_project_service.compute]
   role       = "roles/monitoring.editor"
-  members    = local.developers
+  members    = local.permissions.zone.developers
 }
 
 resource "google_project_iam_binding" "monitoring_viewer" {
   depends_on = [google_project_service.compute]
   role       = "roles/monitoring.viewer"
-  members    = local.statusViewers
+  members    = local.permissions.zone.statusViewers
 }
