@@ -57,13 +57,13 @@ variable "enable_google_services" {
 variable "cicd_cloud_deploy_enabled" {
   type        = bool
   default     = true
-  description = "If true, cloudbuild service account is given deployment permissions."
+  description = "If true, cloudbuild service account is given deployment permissions for ALL Kubernetes namespaces. If you require more limited permissions, you should use some other CI/CD tool for deployment."
 }
 
 variable "cicd_testing_enabled" {
   type        = bool
   default     = true
-  description = "If true, testing service account is created and given necessary permissions for db access."
+  description = "If true, testing service account is created and given necessary permissions for db access through the db proxy."
 }
 
 variable "database_proxy_enabled" {

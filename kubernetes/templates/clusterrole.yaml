@@ -82,3 +82,12 @@ aggregationRule:
   - matchLabels:
       taito.dev/aggregate-to-developers: "true"
 rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: taito:iam-admin
+rules:
+- apiGroups: [""]
+  resources: ["roles", "rolebindings"]
+  verbs: ["*"]

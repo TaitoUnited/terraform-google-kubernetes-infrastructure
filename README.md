@@ -45,13 +45,13 @@ Example YAML for resources:
 permissions:
   zone:
     owners:
-      - user:john.owner@mydomain.com
+      - group:devops@mydomain.com
     viewers:
       - user:john.viewer@mydomain.com
     statusViewers:
-      - user:john.statusviewer@mydomain.com
+      - group:staff@mydomain.com
     developers:
-      - user:john.developer@mydomain.com
+      - group:developers@mydomain.com
     limitedDevelopers:
       - user:jane.external@anotherdomain.com
     limitedDataViewers:
@@ -59,8 +59,10 @@ permissions:
 
   kubernetes:
     cluster:
+      'taito:iam-admin':
+        - group:devops@mydomain.com
       'taito:status-viewer':
-        - user:jane.statusviewer@anotherdomain.com
+        - group:staff@mydomain.com
     namespaces:
       db-proxy:
         'taito:pod-portforwarder':

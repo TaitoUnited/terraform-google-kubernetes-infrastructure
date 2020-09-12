@@ -22,3 +22,18 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 ---
 {{- end }}
+
+{{- if .Values.cicd.deployServiceAccount }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cicd-deploy
+subjects:
+- kind: User
+  name: {{ .Values.cicd.deployServiceAccount }}
+roleRef:
+  kind: ClusterRole
+  name: taito:developer
+  apiGroup: rbac.authorization.k8s.io
+---
+{{- end }}

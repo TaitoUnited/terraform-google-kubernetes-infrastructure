@@ -48,32 +48,20 @@ resource "google_project_iam_binding" "viewer" {
   members    = local.permissions.zone.viewers
 }
 
-resource "google_project_iam_binding" "container_developer" {
-  depends_on = [null_resource.service_wait, google_service_account.cicd_tester]
-  role       = "roles/container.developer"
-  members = concat(
-    local.permissions.zone.developers,
-
-    var.cicd_cloud_deploy_enabled ? [
-      # TODO: Give cloudbuild only such permissions it really requires.
-      # -> Optionally prevent also (Cluster)Role/(Cluster)RoleBinding modifications.
-      "serviceAccount:${data.google_project.zone.number}@cloudbuild.gserviceaccount.com",
-    ] : [],
-
-    var.cicd_testing_enabled ? [
-      # TODO: limit tester access (connects to db proxy container and reads project specific db secrets)
-      "serviceAccount:${google_service_account.cicd_tester[0].email}"
-    ] : [],
-  )
-}
-
 resource "google_project_iam_binding" "container_cluster_viewer" {
   depends_on = [null_resource.service_wait]
   role       = "roles/container.clusterViewer"
   members = concat(
     local.permissions.zone.viewers,
     local.permissions.zone.statusViewers,
+    local.permissions.zone.developers,
     local.permissions.zone.limitedDevelopers,
+    var.cicd_cloud_deploy_enabled ? [
+      "serviceAccount:${data.google_project.zone.number}@cloudbuild.gserviceaccount.com",
+    ] : [],
+    var.cicd_testing_enabled ? [
+      "serviceAccount:${google_service_account.cicd_tester[0].email}"
+    ] : [],
   )
 }
 

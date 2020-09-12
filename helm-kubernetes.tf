@@ -28,4 +28,19 @@ resource "helm_release" "kubernetes" {
     value    = local.permissions.kubernetes
   }
 
+  set {
+    name     = "cicd.deployServiceAccount"
+    value    = var.cicd_cloud_deploy_enabled ? "serviceAccount:${data.google_project.zone.number}@cloudbuild.gserviceaccount.com" : ""
+  }
+
+  set {
+    name     = "cicd.testingServiceAccount"
+    value    = var.cicd_testing_enabled ? "serviceAccount:${google_service_account.cicd_tester[0].email}" : ""
+  }
+
+  set {
+    name     = "dbProxyNamespace"
+    value    = "db-proxy"
+  }
+
 }
