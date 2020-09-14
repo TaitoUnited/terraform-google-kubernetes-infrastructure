@@ -24,11 +24,11 @@ module "my_zone" {
   helm_enabled               = false
 
   # Settings
-  enable_google_services     = true
-  cicd_cloud_deploy_enabled  = true
-  cicd_testing_enabled       = true
-  database_proxy_enabled     = true
-  email                      = "devops@mydomain.com"
+  enable_google_services         = true
+  global_cloud_deploy_privileges = true
+  create_database_proxy_account  = true
+  create_cicd_testing_account    = true
+  email                          = "devops@mydomain.com"
 
   # Resources
   resources                  = yamldecode(file("${path.root}/../my-zone.yaml"))
@@ -39,79 +39,6 @@ Example YAML for resources:
 
 ```
 #--------------------------------------------------------------------
-# Permissions
-#--------------------------------------------------------------------
-
-permissions:
-  zone:
-    owners:
-      - group:devops@mydomain.com
-    viewers:
-      - user:john.viewer@mydomain.com
-    statusViewers:
-      - group:staff@mydomain.com
-    developers:
-      - group:developers@mydomain.com
-    limitedDevelopers:
-      - user:jane.external@anotherdomain.com
-    limitedDataViewers:
-      - user:jane.external@anotherdomain.com
-
-  kubernetes:
-    cluster:
-      'taito:iam-admin':
-        - group:devops@mydomain.com
-      'taito:status-viewer':
-        - group:staff@mydomain.com
-    namespaces:
-      db-proxy:
-        'taito:pod-portforwarder':
-          - user:jane.external@anotherdomain.com
-      my-namespace:
-        'taito:status-viewer':
-          - user:jane.external@anotherdomain.com
-      another-namespace:
-        'taito:developer':
-          - user:jane.external@anotherdomain.com
-
-  # NOTE: Database permissions are provided by Terraform modules
-  # TODO and TODO.
-  # NOTE: All postgres users can see each other usernames by default.
-  # Use scrambled usernames if this is a problem.
-  databases:
-    zone1-common-postgres:
-      users:
-        - username: john.doe
-          view: [ "my-database" ]
-          edit: [ "another-database" ]
-          custom: [ "third-database" ]
-    zone1-common-mysql:
-      users:
-        - username: john.doe
-          view: [ "my-database" ]
-          edit: [ "another-database" ]
-
-#--------------------------------------------------------------------
-# DNS
-#--------------------------------------------------------------------
-
-dnsZones:
-  - name: my-domain
-    dnsName: mydomain.com.
-    visibility: public
-    dnsSec:
-      state: on
-    recordSets:
-      - dnsName: www.mydomain.com.
-        type: A
-        ttl: 3600
-        values: ["127.127.127.127"]
-      - dnsName: myapp.mydomain.com.
-        type: CNAME
-        ttl: 43200
-        values: ["myapp.otherdomain.com."]
-
-#--------------------------------------------------------------------
 # Network
 #--------------------------------------------------------------------
 
@@ -119,21 +46,6 @@ network:
   create: true
   natEnabled: true # Required if kubernetes.privateNodesEnabled is true
   privateGoogleServicesEnabled: true
-
-#--------------------------------------------------------------------
-# Alerts
-#--------------------------------------------------------------------
-
-# NOTE: This module does not currently create notification channels.
-# You have to create them manually (e.g. the 'monitoring' channel shown below).
-
-alerts:
-  - name: kubernetes-container-errors
-    type: log
-    channels: [ "monitoring" ]
-    rule: >
-      resource.type="k8s_container"
-      severity>=ERROR
 
 #--------------------------------------------------------------------
 # Kubernetes
@@ -308,6 +220,119 @@ storageBuckets:
     transitionStorageClass: ARCHIVE
 ```
 
+When combined with additional Terraform modules, you get also DNS, alerts, and access management:
+
+```
+#--------------------------------------------------------------------
+# DNS
+#--------------------------------------------------------------------
+
+# TODO: module link
+dnsZones:
+  - name: my-domain
+    dnsName: mydomain.com.
+    visibility: public
+    dnsSec:
+      state: on
+    recordSets:
+      - dnsName: www.mydomain.com.
+        type: A
+        ttl: 3600
+        values: ["127.127.127.127"]
+      - dnsName: myapp.mydomain.com.
+        type: CNAME
+        ttl: 43200
+        values: ["myapp.otherdomain.com."]
+
+#--------------------------------------------------------------------
+# Alerts
+#--------------------------------------------------------------------
+
+# NOTE: This module does not currently create notification channels.
+# You have to create them manually (e.g. the 'monitoring' channel shown below).
+
+# TODO: module link
+alerts:
+  - name: kubernetes-container-errors
+    type: log
+    channels: [ "monitoring" ]
+    rule: >
+      resource.type="k8s_container"
+      severity>=ERROR
+
+#--------------------------------------------------------------------
+# Access management
+#--------------------------------------------------------------------
+
+permissions:
+  # TODO: module link
+  zone:
+    owners:
+      - group:devops@mydomain.com
+    viewers:
+      - user:john.viewer@mydomain.com
+    statusViewers:
+      - group:staff@mydomain.com
+    developers:
+      - group:developers@mydomain.com
+    limitedDevelopers:
+      - user:jane.external@anotherdomain.com
+    limitedDataViewers:
+      - user:jane.external@anotherdomain.com
+
+  # TODO: module link
+  kubernetes:
+    cluster:
+      'taito:iam-admin':
+        - group:devops@mydomain.com
+      'taito:status-viewer':
+        - group:staff@mydomain.com
+    namespaces:
+      db-proxy:
+        'taito:pod-portforwarder':
+          - user:jane.external@anotherdomain.com
+      my-namespace:
+        'taito:status-viewer':
+          - user:jane.external@anotherdomain.com
+      another-namespace:
+        'taito:developer':
+          - user:jane.external@anotherdomain.com
+
+  # TODO: module link
+  databases:
+    zone1-common-postgres:
+      roles:
+        - name: my_project_admin
+          permissions:
+            - database: my_project_database
+              schema: public
+              type: table
+              privileges: ["ALL"]
+            - database: my_project_database
+              schema: public
+              type: sequence
+              privileges: ["ALL"]
+        - name: my_project_support
+          permissions:
+            - database: my_project_database
+              schema: public
+              type: table
+              privileges: ["SELECT", "UPDATE"]
+      users:
+        - name: john.doe
+          roles: [ "my_project_support" ]
+          permissions:
+            - database: another_database
+              schema: public
+              type: table
+              privileges: ["SELECT"]
+    zone1-common-mysql:
+      users:
+        - username: john.doe
+          view: [ "my-database" ]
+          edit: [ "another-database" ]
+```
+
 Similar YAML format is supported by the following modules:
 
 - [Kubernetes infrastructure for AWS](https://registry.terraform.io/modules/TaitoUnited/kubernetes-infrastructure/aws)
@@ -317,6 +342,6 @@ Similar YAML format is supported by the following modules:
 
 The aforementioned modules are used by [infrastructure templates](https://taitounited.github.io/taito-cli/templates#infrastructure-templates) of [Taito CLI](https://taitounited.github.io/taito-cli/).
 
-TIP: See also [Google Cloud project resources](https://registry.terraform.io/modules/TaitoUnited/project-resources/google), [Full Stack Helm Chart](https://github.com/TaitoUnited/taito-charts/blob/master/full-stack), and [full-stack-template](https://github.com/TaitoUnited/full-stack-template).
+See also [Google Cloud project resources](https://registry.terraform.io/modules/TaitoUnited/project-resources/google), [Full Stack Helm Chart](https://github.com/TaitoUnited/taito-charts/blob/master/full-stack), and [full-stack-template](https://github.com/TaitoUnited/full-stack-template).
 
 Contributions are welcome!

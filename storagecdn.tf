@@ -82,7 +82,7 @@ resource "google_storage_bucket_iam_member" "cdn_all_users_viewers" {
 
 resource "google_storage_bucket_iam_member" "cdn_cloudbuild_deployer" {
   depends_on    = [google_storage_bucket.bucket]
-  count         = length(var.cicd_cloud_deploy_enabled ? local.cdnStorageBuckets : 0)
+  count         = length(var.global_cloud_deploy_privileges ? local.cdnStorageBuckets : 0)
 
   bucket        = local.cdnStorageBuckets[count.index].name
   role          = "roles/storage.objectAdmin"

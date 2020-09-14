@@ -56,10 +56,10 @@ resource "google_project_iam_binding" "container_cluster_viewer" {
     local.permissions.zone.statusViewers,
     local.permissions.zone.developers,
     local.permissions.zone.limitedDevelopers,
-    var.cicd_cloud_deploy_enabled ? [
+    var.global_cloud_deploy_privileges ? [
       "serviceAccount:${data.google_project.zone.number}@cloudbuild.gserviceaccount.com",
     ] : [],
-    var.cicd_testing_enabled ? [
+    var.create_cicd_testing_account ? [
       "serviceAccount:${google_service_account.cicd_tester[0].email}"
     ] : [],
   )
@@ -75,11 +75,11 @@ resource "google_project_iam_binding" "cloudsql_client" {
     local.permissions.zone.developers,
     local.permissions.zone.limitedDevelopers,
 
-    var.database_proxy_enabled ? [
+    var.create_database_proxy_account ? [
       "serviceAccount:${google_service_account.database_proxy[0].email}"
     ] : [],
 
-    var.cicd_testing_enabled ? [
+    var.create_cicd_testing_account ? [
       "serviceAccount:${google_service_account.cicd_tester[0].email}"
     ] : [],
   )

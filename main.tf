@@ -145,24 +145,6 @@ locals {
     []
   )
 
-  postgresUsers = var.create_database_users == false ? [] : flatten([
-    for postgres in keys(local.postgresClusters) : [
-      for user in postgres.users : {
-        postgresName = postgres.name
-        username     = user.username
-      }
-    ]
-  ])
-
-  mysqlUsers = var.create_database_users == false ? [] : flatten([
-    for mysql in keys(local.mysqlClusters) : [
-      for user in mysql.users : {
-        mysqlName = mysql.name
-        username    = user.username
-      }
-    ]
-  ])
-
   # Storage buckets
 
   storageBuckets = try(

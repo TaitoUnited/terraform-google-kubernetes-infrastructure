@@ -16,4 +16,24 @@
 
 terraform {
   required_version = ">= 0.13"
+  required_providers {
+    external = {
+      source = "hashicorp/external"
+    }
+    google = {
+      source = "hashicorp/google"
+    }
+    google-beta = {
+      source = "hashicorp/google-beta"
+    }
+    helm = {
+      source = "hashicorp/helm"
+    }
+    null = {
+      source = "hashicorp/null"
+    }
+    random = {
+      source = "hashicorp/random"
+    }
+  }
 }

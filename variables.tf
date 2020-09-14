@@ -54,28 +54,22 @@ variable "enable_google_services" {
   description = "If true, required google services are enabled by this module."
 }
 
-variable "cicd_cloud_deploy_enabled" {
+variable "global_cloud_deploy_privileges" {
   type        = bool
   default     = true
-  description = "If true, cloudbuild service account is given deployment permissions for ALL Kubernetes namespaces. If you require more limited permissions, you should use some other CI/CD tool for deployment."
+  description = "If true, cloudbuild service account is given deployment permissions for ALL Kubernetes namespaces. If you require more limited CI/CD permissions, you should set this to false, and create a separate CI/CD service account for each Kubernetes namespace."
 }
 
-variable "cicd_testing_enabled" {
+variable "create_cicd_testing_account" {
   type        = bool
   default     = true
   description = "If true, testing service account is created and given necessary permissions for db access through the db proxy."
 }
 
-variable "database_proxy_enabled" {
+variable "create_database_proxy_account" {
   type        = bool
   default     = true
   description = "If true, database proxy service account is created and given necessary permissions for db access."
-}
-
-variable "create_database_users" {
-  type        = bool
-  default     = true
-  description = "If true, database users are managed by this module. You might want to set this to false, if you use some other module to manage your database users."
 }
 
 variable "email" {

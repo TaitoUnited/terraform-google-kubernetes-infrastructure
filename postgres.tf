@@ -71,24 +71,3 @@ resource "google_sql_database_instance" "postgres" {
     prevent_destroy = true
   }
 }
-
-resource "random_string" "postgres_user_password" {
-  count    = length(local.postgresUsers)
-
-  length  = 32
-  special = false
-  upper   = true
-
-  keepers = {
-    postgres_instance = local.postgresUsers[count.index].postgresName
-    username          = local.postgresUsers[count.index].username
-  }
-}
-
-resource "google_sql_user" "postgres_user" {
-  count    = length(local.postgresUsers)
-  name     = local.postgresUsers[count.index].username
-  host     = "%"
-  instance = local.postgresUsers[count.index].postgresName
-  password = random_string.postgres_user_password[count.index].result
-}

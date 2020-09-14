@@ -85,24 +85,3 @@ resource "google_sql_user" "mysql_admin" {
   instance = google_sql_database_instance.mysql[count.index].name
   password = random_string.mysql_admin_password[count.index].result
 }
-
-resource "random_string" "mysql_user_password" {
-  count    = length(local.mysqlUsers)
-
-  length  = 32
-  special = false
-  upper   = true
-
-  keepers = {
-    mysql_instance = local.mysqlUsers[count.index].mysqlName
-    username       = local.mysqlUsers[count.index].username
-  }
-}
-
-resource "google_sql_user" "mysql_user" {
-  count    = length(local.mysqlUsers)
-  name     = local.mysqlUsers[count.index].username
-  host     = "%"
-  instance = local.mysqlUsers[count.index].mysqlName
-  password = random_string.mysql_user_password[count.index].result
-}
