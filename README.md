@@ -9,8 +9,8 @@ DEPRECATED: This module is deprecated in favor of the following modules.
 - [Databases](https://registry.terraform.io/modules/TaitoUnited/databases/google)
 - [Storage](https://registry.terraform.io/modules/TaitoUnited/storage/google)
 - [Monitoring](https://registry.terraform.io/modules/TaitoUnited/monitoring/google)
-- [PostgreSQL privileges](https://registry.terraform.io/modules/TaitoUnited/postgresql-privileges/google)
-- [MySQL privileges](https://registry.terraform.io/modules/TaitoUnited/mysql-privileges/google)
+- [PostgreSQL privileges](https://registry.terraform.io/modules/TaitoUnited/privileges/postgresql)
+- [MySQL privileges](https://registry.terraform.io/modules/TaitoUnited/privileges/mysql)
 
 Kubernetes infrastructure module designed to get you up and running in no time. Provides all the necessary components for running your projects: Kubernetes, NGINX ingress, cert-manager, container registry, databases, database proxies, networking, monitoring, and permissions. Use it either as a module, or as an example for your own customized infrastructure.
 
